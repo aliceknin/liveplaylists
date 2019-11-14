@@ -6,10 +6,12 @@ class SavePlaylistModal extends Component {
         super(props);
         this.state = {
             playlistTitle: "",
-            playlistDescription: ""
+            playlistDescription: "",
+            playlistType: "public"
         }
         this.setPlaylistTitle = this.setPlaylistTitle.bind(this);
         this.setPlaylistDescription = this.setPlaylistDescription.bind(this);
+        this.setPlaylistType = this.setPlaylistType.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -19,6 +21,10 @@ class SavePlaylistModal extends Component {
 
     setPlaylistDescription(evt) {
         this.setState({playlistDescription: evt.target.value})
+    }
+
+    setPlaylistType(evt) {
+        this.setState({playlistType: evt.target.value})
     }
 
     handleSubmit() {
@@ -33,14 +39,27 @@ class SavePlaylistModal extends Component {
             <ReactModal isOpen={this.props.isOpen}
                         contentLabel="Save Playlist Modal">
                 <h2>Save Playlist</h2>
-                <input placeholder="Title"
-                       value={this.playlistTitle}
-                       onChange={this.setPlaylistTitle}/>
-                <textarea placeholder="Description"
-                          value={this.playlistDescription}
-                          onChange={this.setPlaylistDescription}/>
-                <button onClick={this.props.onHide}>Cancel</button>
-                <button onClick={this.handleSubmit}>Save Playlist</button>
+                <form>
+                    <input placeholder="Title"
+                        value={this.state.playlistTitle}
+                        onChange={this.setPlaylistTitle}/>
+                    <textarea placeholder="Description"
+                              value={this.state.playlistDescription}
+                              onChange={this.setPlaylistDescription}/>
+                    <fieldset>
+                        <input type="radio" id="public" name="public" value="public" 
+                               checked={this.state.playlistType === "public"} onChange={this.setPlaylistType}/>
+                        <label htmlFor="public">Public</label>
+                        <input type="radio" id="private" name="private" value="private"
+                               checked={this.state.playlistType === "private"} onChange={this.setPlaylistType}/>
+                        <label htmlFor="private">Private</label>
+                        <input type="radio" id="collab" name="collab" value="collab"
+                               checked={this.state.playlistType === "collab"} onChange={this.setPlaylistType}/>
+                        <label htmlFor="collab">Private and collaborative</label>
+                    </fieldset>
+                    <button onClick={this.props.onHide}>Cancel</button>
+                    <button onClick={this.handleSubmit}>Save Playlist</button>
+                </form>
             </ReactModal>
         )
     }
