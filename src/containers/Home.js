@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import LoginModal from '../components/LoginModal';
 import SavePlaylistModal from '../components/SavePlaylistModal';
+import PlaylistParameters from '../components/PlaylistParameters';
 
 class Home extends Component {
     constructor(props) {
@@ -41,9 +42,10 @@ class Home extends Component {
                 <button onClick={this.openLoginModal}>Login with Spotify</button>
                 <LoginModal isOpen={this.state.loginModalOpen}
                             onHide={this.closeLoginModal}/>
+                <PlaylistParameters buttonText="Create Playlist"/>
                 <button onClick={this.openSavePlaylistModal}>Save Playlist</button>
                 <SavePlaylistModal isOpen={this.state.savePlaylistModalOpen}
-                           onHide={this.closeSavePlaylistModal}/>
+                                   onHide={this.closeSavePlaylistModal}/>
             </div>
         )
     }
