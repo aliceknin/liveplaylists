@@ -40,7 +40,7 @@ class Home extends Component {
                     <div className="inner">
                         <h1>Live Playlists</h1>
                             <h2>some kind of description that has some chance of getting a user to want to check this thing out</h2>
-                            <button onClick={this.openLoginModal}>Login with Spotify</button>
+                            <button className="button-callout" onClick={this.openLoginModal}>Login with Spotify</button>
                             <LoginModal isOpen={this.state.loginModalOpen}
                                         onHide={this.closeLoginModal}/>
                     </div>

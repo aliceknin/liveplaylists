@@ -1,0 +1,40 @@
+.inner {
+  margin: 0 auto;
+  width: 80%;
+  padding: 2.5em 0;
+}
+
+input:not([type=radio]), textarea {
+  padding: .5em;
+  border-radius: 5px;
+  border: solid 1px #b7b7b7;
+  font-family: inherit;
+}
+
+$button-color: #e8e8e8;
+
+button {
+  text-transform: uppercase;
+  padding: 1em 2em;
+  border-radius: 5em;
+  border: none;
+  margin: 1.5em;
+  font-weight: bold;
+  line-height: 1em;
+  transition: all .2s ease;
+  background-color: $button-color;
+
+  &.button-light {
+    border: solid 2px $button-color;
+    background-color: #fff;
+  }
+
+  &:hover {
+      background: darken($button-color, 5%);
+
+      &.button-callout {
+        transform: scale(1.02);
+        box-shadow: 0 5px 20px -5px #8a8a8a;
+      }
+  }
+}

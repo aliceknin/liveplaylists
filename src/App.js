@@ -4,7 +4,7 @@ import {BrowserRouter as Router,
         Route} from 'react-router-dom';
 import Home from './containers/Home.js';
 import UserSettings from './containers/UserSettings.js';
-import './App.css';
+import './App.scss';
 
 function App() {
   return (
