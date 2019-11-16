@@ -1,0 +1,40 @@
+.home {
+    .hero {
+        text-align: center;
+        background-color: grey;
+
+        h1 {
+            font-size: 3em;
+            font-family: Montserrat, sans-serif;
+            font-weight: 300;
+        }
+        h2 {
+            font-weight: 500;
+        }
+    }
+}
+
+.inner {
+    margin: 0 auto;
+    width: 80%;
+    padding: 2.5em 0;
+}
+
+$button-color: #e8e8e8;
+
+button {
+    text-transform: uppercase;
+    padding: 1em 2em;
+    border-radius: 5em;
+    border: none;
+    margin: 1.5em;
+    font-weight: bold;
+    transition: all .2s ease;
+    background-color: $button-color;
+
+    &:hover {
+        background: darken($button-color, 5%);
+        transform: scale(1.02);
+		box-shadow: 0 5px 20px -5px #8a8a8a;
+    }
+}

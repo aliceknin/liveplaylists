@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import './Home.scss';
 import LoginModal from '../components/LoginModal';
 import SavePlaylistModal from '../components/SavePlaylistModal';
 import PlaylistParameters from '../components/PlaylistParameters';
@@ -35,17 +36,23 @@ class Home extends Component {
     render() {
         return (
             <div className="home">
-                <div className="hero">
-                    <h1>Live Playlists</h1>
-                    <h2>some kind of description that has some chance of getting a user to want to check this thing out</h2>
-                </div>
-                <button onClick={this.openLoginModal}>Login with Spotify</button>
-                <LoginModal isOpen={this.state.loginModalOpen}
-                            onHide={this.closeLoginModal}/>
-                <PlaylistParameters buttonText="Create Playlist"/>
-                <button onClick={this.openSavePlaylistModal}>Save Playlist</button>
-                <SavePlaylistModal isOpen={this.state.savePlaylistModalOpen}
-                                   onHide={this.closeSavePlaylistModal}/>
+                <section className="hero">
+                    <div className="inner">
+                        <h1>Live Playlists</h1>
+                            <h2>some kind of description that has some chance of getting a user to want to check this thing out</h2>
+                            <button onClick={this.openLoginModal}>Login with Spotify</button>
+                            <LoginModal isOpen={this.state.loginModalOpen}
+                                        onHide={this.closeLoginModal}/>
+                    </div>
+                </section>
+                <main>
+                    <div className="inner">
+                        <PlaylistParameters buttonText="Create Playlist"/>
+                        <button onClick={this.openSavePlaylistModal}>Save Playlist</button>
+                        <SavePlaylistModal isOpen={this.state.savePlaylistModalOpen}
+                                        onHide={this.closeSavePlaylistModal}/>
+                    </div>
+                </main>
             </div>
         )
     }
