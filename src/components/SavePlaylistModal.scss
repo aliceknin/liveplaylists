@@ -29,7 +29,9 @@
         }
 
         @media (min-width: 435px) {
-            float: right;
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
             button {
                 display: inline;
                 margin: 1em 0 1em 1em;

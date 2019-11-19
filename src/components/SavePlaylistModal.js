@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import ReactModal from 'react-modal';
+import "./Modal.scss";
 import './SavePlaylistModal.scss';
 
 class SavePlaylistModal extends Component {
@@ -38,7 +39,9 @@ class SavePlaylistModal extends Component {
     render() {
         return (
             <ReactModal isOpen={this.props.isOpen}
-                        contentLabel="Save Playlist Modal">
+                        contentLabel="Save Playlist Modal"
+                        onRequestClose={this.props.onHide}
+                        className="modal">
                 <h2>Save Playlist</h2>
                 <div className="form-container">
                     <input placeholder="Title"
