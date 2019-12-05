@@ -67,6 +67,7 @@ class SavePlaylistModal extends Component {
                                    checked={this.state.playlistType === "collab"} onChange={this.setPlaylistType}/>
                             <label htmlFor="collab">Collaborative</label>
                         </div>
+                        <i className="fas fa-info-circle"></i>
                     </fieldset>
                     <div className="buttons-container">
                         <button className="button-light" onClick={this.props.onHide}>Cancel</button>
