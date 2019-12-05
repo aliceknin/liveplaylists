@@ -20,7 +20,8 @@ class LoginModal extends Component {
             <ReactModal isOpen={this.props.isOpen}
                         contentLabel="Login Modal"
                         onRequestClose={this.props.onHide}
-                        className="modal">
+                        className="modal"
+                        closeTimeoutMS={200}>
                 <h2>Login with Spotify</h2>
                 Before I actually put interesting stuff in here, I'm putting random drivel just to make sure the basic stuff works.
                 <button onClick={this.props.onHide}>Nevermind</button>

@@ -41,7 +41,8 @@ class SavePlaylistModal extends Component {
             <ReactModal isOpen={this.props.isOpen}
                         contentLabel="Save Playlist Modal"
                         onRequestClose={this.props.onHide}
-                        className="modal">
+                        className="modal"
+                        closeTimeoutMS={200}>
                 <h2>Save Playlist</h2>
                 <div className="form-container">
                     <input placeholder="Title"
