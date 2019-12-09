@@ -2,18 +2,22 @@ import React, {Component} from 'react';
 import ReactModal from 'react-modal';
 import {Link} from 'react-router-dom';
 import "./Modal.scss";
+import UserService from '../services/UserService';
 
 class LoginModal extends Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         showModal:false
-    //     }
-    //     this.handleOpenModal.bind(this);
-    //     this.handleCloseModal.bind(this);
-    // }
+    constructor(props) {
+        super(props);
+        this.state = {
+            test: ""
+        }
+        this.handleProof = this.handleProof.bind(this);
+        this.userService = new UserService();
+    }
 
-
+    handleProof(evt) {
+        this.userService.getProof()
+        .then(proof => this.setState({test: proof.test}));
+    }
 
     render() {
         return (
@@ -28,6 +32,10 @@ class LoginModal extends Component {
                 <button onClick={this.props.onHide}>
                     <Link to='user'>User Settings Placeholder</Link>
                 </button>
+                <button onClick={this.handleProof}>
+                    Test Server Connection
+                </button>
+                <h3>{this.state.test}</h3>
             </ReactModal>
         )
     }

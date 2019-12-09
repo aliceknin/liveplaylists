@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
     res.send("yo");
 });
 
+app.get ('/proof', (req, res) => {
+    res.send({"test": "proof!"});
+});
+
 app.listen(PORT, function() {
     console.log(`Server is running on port ${PORT}`);
 });
