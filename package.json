@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "backend": "nodemon",
-    "frontend": "cd ../client && npm start",
+    "frontend": "cd client && npm start",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "keywords": [],
