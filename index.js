@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const keys = require('./config/keys');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 const db = keys.mongo.dbURI;
 mongoose.connect(db, {
@@ -24,6 +24,15 @@ app.get('/', (req, res) => {
 app.get ('/proof', (req, res) => {
     res.send({"test": "proof!"});
 });
+
+// in theory, heroku sets NODE_ENV to "production" by default, 
+// so this should kick in when deployed there
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, 'client/build')));
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client/build/index.html'))
+    });
+}
 
 app.listen(PORT, function() {
     console.log(`Server is running on port ${PORT}`);
