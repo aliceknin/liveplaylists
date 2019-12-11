@@ -1,0 +1,41 @@
+.form-container {
+    input:not([type=radio]), textarea {
+        display: block;
+        margin-bottom: .5em;
+        width: 100%;
+    }
+
+    textarea {
+        min-height: 75px;
+    }
+
+    fieldset {
+        border: none;
+        padding: 0;
+        label {
+            margin-right: 20px;
+        }
+        .form-group {
+            @media (min-width: 435px) {
+                display: inline-block;
+            }
+        }
+    }
+
+    .buttons-container {
+        button {
+            display: block;
+            margin: .5em auto;
+        }
+
+        @media (min-width: 435px) {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            button {
+                display: inline;
+                margin: 1em 0 1em 1em;
+            }
+        }
+    }
+}

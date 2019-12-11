@@ -1,0 +1,25 @@
+.playlist-parameters {
+    .container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        display: inline-block;
+        margin: 1em;
+    
+        label, input {
+            display: block;
+            margin-bottom: .25em;
+        }
+    }
+
+    button {
+        display: block;
+        margin: 1em auto;
+    }
+}
+
+
+
