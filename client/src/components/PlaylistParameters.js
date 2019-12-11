@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import './PlaylistParameters.scss';
+import '../styles/PlaylistParameters.scss';
 
 class PlaylistParameters extends Component {
     constructor(props) {
