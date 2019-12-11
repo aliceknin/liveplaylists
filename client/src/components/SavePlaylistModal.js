@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ReactModal from 'react-modal';
-import "./Modal.scss";
-import './SavePlaylistModal.scss';
+import "../styles/Modal.scss";
+import '../styles/SavePlaylistModal.scss';
 
 class SavePlaylistModal extends Component {
     constructor(props) {

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import './Home.scss';
+import '../styles/Home.scss';
 import LoginModal from '../components/LoginModal';
 import SavePlaylistModal from '../components/SavePlaylistModal';
 import PlaylistParameters from '../components/PlaylistParameters';

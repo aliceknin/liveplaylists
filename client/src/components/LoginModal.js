@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import ReactModal from 'react-modal';
 import {Link} from 'react-router-dom';
-import "./Modal.scss";
+import "../styles/Modal.scss";
 import UserService from '../services/UserService';
 
 class LoginModal extends Component {
