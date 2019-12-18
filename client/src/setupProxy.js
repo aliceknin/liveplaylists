@@ -7,4 +7,10 @@ module.exports = function(app) {
         target: 'http://localhost:4000'
     }
   ));
+  app.use(proxy(
+    '/auth',
+    {
+      target: 'http://localhost:4000'
+    }
+  ))
 };
