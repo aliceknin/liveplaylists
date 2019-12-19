@@ -56,7 +56,7 @@ app.get('/auth/spotify/callback',
     }),
     (req, res) => {
         console.log("-------------------------------");
-        console.log(`Spotify redirect, Origin: ${req.headers.origin}`);
+        console.log("spotify redirect");
         console.log(`req.user: ${req.user}`);
         console.log('passport session user: %O', req.session.passport.user);
         res.redirect('/user')
@@ -65,9 +65,14 @@ app.get('/auth/spotify/callback',
 app.get('/auth/user', (req, res) => {
     console.log("-------------------------------");
     console.log("getting user info for the front end")
-    console.log('req.user: %O', req.user);
-    console.log('passport session user: %0', req.session.passport.user);
-    res.json(req.user);
+    if (req.user) {
+        console.log('req.user: %O', req.user);
+        console.log('passport session user: %O', req.session.passport.user);
+        res.json(req.user);
+    } else {
+        console.log('no user here')
+        res.send({});
+    }
 });
 
 app.get('/auth/logout', (req, res) => {

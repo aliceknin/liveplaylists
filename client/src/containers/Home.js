@@ -3,6 +3,7 @@ import '../styles/Home.scss';
 import LoginModal from '../components/LoginModal';
 import SavePlaylistModal from '../components/SavePlaylistModal';
 import PlaylistParameters from '../components/PlaylistParameters';
+import FloatingUser from '../components/FloatingUser';
 
 class Home extends Component {
     constructor(props) {
@@ -37,10 +38,11 @@ class Home extends Component {
         return (
             <div className="home">
                 <section className="hero">
+                    <FloatingUser/>
                     <div className="inner">
                         <h1>Live Playlists</h1>
                             <h2>some kind of description that has some chance of getting a user to want to check this thing out</h2>
-                            <button className="button-callout" onClick={this.openLoginModal}>Login with Spotify</button>
+                            <a href='/auth/spotify'><button className="button-callout">Login with Spotify</button></a>
                             <LoginModal isOpen={this.state.loginModalOpen}
                                         onHide={this.closeLoginModal}/>
                     </div>
