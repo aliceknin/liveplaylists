@@ -67,6 +67,7 @@ app.get('/auth/user', (req, res) => {
     console.log("getting user info for the front end")
     if (req.user) {
         console.log('req.user: %O', req.user);
+        console.log('req.session: %O', req.session);
         console.log('passport session user: %O', req.session.passport.user);
         res.json(req.user);
     } else {
@@ -79,9 +80,11 @@ app.get('/auth/logout', (req, res) => {
     console.log("-------------------------------");
     console.log("tryna log out");
     req.logout();
-    console.log("req.user: %O", req.user);
     console.log("passport session user: %O", req.session.passport.user);
-    res.send("logged out");
+    req.session.destroy((err) => res.send('logged out'));
+    console.log("req.user: %O", req.user);
+    console.log('req.session: %O', req.session);
+    ;
 });
 
 // heroku sets NODE_ENV to "production" by default, 

@@ -12,25 +12,24 @@ function getDbUserParams(spotifyProfile) {
     return userParams;
 }
 
-function modifyUserForPassport(user, profile, access) {
+function modifyUserForPassport(user, profile) {
     let modifiedUser = user;
     modifiedUser.profile = profile._json;
-    modifiedUser.access = access;
     return modifiedUser;
 }
 
-function findOrCreateUser(spotifyUser, profile, access, done) {
-    spotifyUser.findOne({spotifyID: profile.id}, (err, returnedUser) => {
+function findOrCreateUser(profile, done) {
+    SpotifyUser.findOne({spotifyID: profile.id}, (err, returnedUser) => {
         if (returnedUser) {
             // user is already in the db
-            let modifiedUser = modifyUserForPassport(returnedUser, profile, access);
+            let modifiedUser = modifyUserForPassport(returnedUser, profile);
             console.log("Existing Spotify user: %O", modifiedUser);
-            done(err, modifiedUser);
+            done(err, modifiedUser); // doesn't matter if we return the result because no one does anything with it
         } else {
             // user isn't in the db, so we gotta create one
             new SpotifyUser(getDbUserParams(profile)).save()
             .then(newUser => {
-                let modifiedUser = modifyUserForPassport(newUser, profile, access);
+                let modifiedUser = modifyUserForPassport(newUser, profile);
                 console.log("New Spotify user: %O", modifiedUser);
                 done(err, modifiedUser);
             })
@@ -44,21 +43,22 @@ module.exports = (passport) => {
         new SpotifyStrategy({
             callbackURL: '/auth/spotify/callback',
             clientID: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET
-        }, (accessToken, refreshToken, expires_in, profile, done) => {           
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            passReqToCallback: true
+        }, (req, accessToken, refreshToken, expires_in, profile, done) => {           
             let access = {
                 accessToken: accessToken,
                 refreshToken: refreshToken,
                 expires_in: expires_in
             }
-
-            findOrCreateUser(SpotifyUser, profile, access, done);
+            req.session.access = access;
+            findOrCreateUser(profile, done);
         })
     );
 
     passport.serializeUser((user, done) => {
         console.log("serializing user!");
-        done(null,  {id: user.id, profile: user.profile, access: user.access});
+        done(null,  {id: user.id, profile: user.profile});
     });''
 
     passport.deserializeUser((params, done) => {
@@ -66,8 +66,7 @@ module.exports = (passport) => {
             if (user) {
                 let passportUser = {
                     dbUser: user,
-                    profile: params.profile,
-                    access: params.access
+                    profile: params.profile
                 }
                 console.log("deserializing user!");
                 done(err, passportUser);
