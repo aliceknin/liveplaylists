@@ -127,6 +127,9 @@ if (process.env.NODE_ENV === "production") {
     app.get('/*', (req, res) => {
         res.sendFile(path.join(__dirname, 'client/build/index.html'))
     });
+    // heroku uses https, so this will make passport use 
+    // https during spotify auth
+    app.enable('trust proxy') ;
 } else {
     app.get('/', (req, res) => {
         res.send("yo");
