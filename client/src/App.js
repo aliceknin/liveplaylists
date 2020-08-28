@@ -4,14 +4,17 @@ import {BrowserRouter as Router,
         Route} from 'react-router-dom';
 import Home from './containers/Home.js';
 import UserSettings from './containers/UserSettings.js';
+import UserProvider from './contexts/UserProvider.js';
 import './App.scss';
 
 function App() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={Home}/>
-        <Route path="/user" component={UserSettings}/>
+        <UserProvider>
+          <Route exact path="/" component={Home}/>
+          <Route path="/user" component={UserSettings}/>
+        </UserProvider>
       </Switch>
     </Router>
   );
