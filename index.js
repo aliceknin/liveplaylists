@@ -124,10 +124,7 @@ app.get('/spotify/user/profile', (req, res) => {
 // so this kicks in when deployed there
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, 'client/build')));
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'client/build/index.html'))
-    });
-    app.get('/user', (req, res) => {
+    app.get('/*', (req, res) => {
         res.sendFile(path.join(__dirname, 'client/build/index.html'))
     });
 } else {
