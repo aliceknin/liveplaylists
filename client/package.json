@@ -5,12 +5,12 @@
   "dependencies": {
     "http-proxy-middleware": "^0.20.0",
     "lodash.isempty": "^4.4.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.14.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-modal": "^3.11.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.3.0"
+    "react-scripts": "^3.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
