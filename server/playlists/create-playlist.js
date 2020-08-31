@@ -1,8 +1,8 @@
-const spotifyAPI = require('../config/spotify');
+const { userSpotifyAPI, appSpotifyAPI } = require('../config/spotify');
 
 /*
-This is a sketch of all the functions I think I;ll need to 
-create a plaulist. It is possible they should all return 
+This is a sketch of all the functions I think I'll need to 
+create a playlist. It is possible they should all return 
 promises (or at least the ones that make api calls should).
 */ 
 
@@ -94,7 +94,7 @@ artist search api request returns results of the form:
 
 // search spotify for each artist to find their spotify id
 function getArtistSpotifyID(artist) {
-    return spotifyAPI.searchArtists(artist.displayName)
+    return userSpotifyAPI.searchArtists(artist.displayName)
     .then(data => {
         // extract the spotify ID from the first result
         return data.body.artists.items[0].id
@@ -122,7 +122,7 @@ top tracks api request returns results of the form:
 
 // get the spotify IDs of each artist's top tracks
 function getArtistTopTrackIDs(artistID) {
-    return spotifyAPI.getArtistTopTracks(artistID)
+    return userSpotifyAPI.getArtistTopTracks(artistID, 'from_token')
     .then(data => {
         return data.body.tracks.map(track => track.id);
     }).catch(err => {
@@ -135,14 +135,15 @@ let playlistTitle = "some title that I should probably set elsewhere but I don't
 
 // TODO: understand promises enough to make sure that this does what I want it to 
 function createUserAppPlaylist() {
-    return spotifyAPI.createPlaylist(playlistTitle)
+    return appSpotifyAPI.createPlaylist(playlistTitle)
     .then(data => {
         return data.body.id;
     }).then(playlistID => {
-        return spotifyAPI.followPlaylist(playlistID, {'public' : false});
+        return userSpotifyAPI.followPlaylist(playlistID, {'public' : false});
     }).then(data => {
         // TODO: figure out how to actually pass down the playlist ID while still returning the promise
-        return spotifyAPI.changePlaylistDetails(playlistID, {'public' : false})
+        // also, should this be collaborative? do we want to allow the user to modify it themselves?
+        return appSpotifyAPI.changePlaylistDetails(playlistID, {'public' : false})
     }).then(data => {
         console.log('successfully created and followed a new app playlist!');
         return playlistID;
@@ -154,7 +155,7 @@ function createUserAppPlaylist() {
 // find or create playlist to modify
 function findOrCreateUserAppPlaylist() {
     // ask the session if the logged in user has a playlist on the app spotify account
-    // how do I get req.user? would it be terrible, terrible practice to attach it to the spotifyAPI object that gets cleared when I logout anyway?
+    // how do I get req.user? would it be terrible, terrible practice to attach it to the userSpotifyAPI object that gets cleared when I logout anyway?
     
     // if not, create a new playlist, make the user follow it, then make it private and collaborative
     return createUserAppPlaylist();

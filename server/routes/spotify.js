@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const spotifyAPI = require('../config/spotify');
+const { userSpotifyAPI } = require('../config/spotify');
 
 router.get('/user/profile', (req, res) => {
     console.log('we made it to the server');
-    spotifyAPI.getMe()
+    userSpotifyAPI.getMe()
     .then((res) => {
         console.log('user spotify data from the spotify API');
         console.log(res.body)
@@ -12,7 +12,7 @@ router.get('/user/profile', (req, res) => {
 });
 
 router.get('/test', (req, res) => {
-    console.log('spotify api obj test:', spotifyAPI.test);
+    console.log('spotify api obj test:', userSpotifyAPI.test);
     console.log('route test complete');
 });
 

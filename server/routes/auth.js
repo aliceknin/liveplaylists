@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const spotifyAPI = require('../config/spotify');
+const { userSpotifyAPI } = require('../config/spotify');
 
-spotifyAPI.test = "test";
+userSpotifyAPI.test = "test";
 
 router.get('/spotify', passport.authenticate('spotify', {
     scope: [
@@ -21,12 +21,12 @@ router.get('/spotify/callback',
         failureRedirect: '/'
     }),
     (req, res) => {
-        spotifyAPI.setTokens(req.session.access);
+        userSpotifyAPI.setTokens(req.session.access);
         console.log("-------------------------------");
         console.log("spotify redirect");
         console.log(`req.user: ${req.user}`);
         console.log('passport session user: %O', req.session.passport.user);
-        console.log('spotifyAPI: %O', spotifyAPI);
+        console.log('userSpotifyAPI: %O', userSpotifyAPI);
         res.redirect('/user')
 });
 
@@ -50,7 +50,7 @@ router.get('/logout', (req, res) => {
     req.logout();
     console.log("passport session user: %O", req.session.passport.user);
     req.session.destroy((err) => {
-        spotifyAPI.resetTokens();
+        userSpotifyAPI.resetTokens();
         res.send('logged out');
     });
     console.log("req.user: %O", req.user);
