@@ -5,6 +5,10 @@ const spotifySchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    refreshToken: {
+        type: String,
+        required: true
+    },
     name: String,
     thumbURL: String,
     playlistID: String,
