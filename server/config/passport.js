@@ -1,15 +1,11 @@
 const SpotifyStrategy = require('passport-spotify').Strategy;
 const SpotifyUser = require('../models/spotifyUser');
 
-function encryptRefreshToken(refreshToken) {
-
-}
-
 function getDbUserParams(spotifyProfile, refreshToken) {
     let userParams = {
         name: spotifyProfile.displayName,
         spotifyID: spotifyProfile.id,
-        refreshToken: refreshToken //TODO: encrypt
+        refreshToken: refreshToken
     };
     if (spotifyProfile.photos && spotifyProfile.photos.length > 0) {
         userParams.thumbURL = spotifyProfile.photos[0];
@@ -25,19 +21,34 @@ function modifyUserForPassport(user, profile) {
 
 function findOrCreateUser(profile, refreshToken, done) {
     SpotifyUser.findOne({spotifyID: profile.id}, (err, returnedUser) => {
-        // TODO: encrypt refreshToken
         if (returnedUser) {
             // user is already in the db
             /* this update was originally to update the old users to include the
                new attribute, but I should also look into whether it's best 
                practice to update refreshTokens (like, do old ones eventually 
                expire if you get issued enough new ones) */
-            SpotifyUser.findByIdAndUpdate(returnedUser._id, { refreshToken },
+            let calledDone = false;
+            SpotifyUser.updateRefreshToken(returnedUser._id, refreshToken,
                 (err, updatedUser) => {
-                    let modifiedUser = modifyUserForPassport(returnedUser, profile);
-                    console.log("Existing Spotify user: %O", modifiedUser);
-                    done(err, modifiedUser); // doesn't matter if we return the result because no one does anything with it
+                    if (updatedUser) {
+                        let modifiedUser = modifyUserForPassport(updatedUser, profile);
+                        console.log("Existing Spotify user: %O", modifiedUser);
+                        done(err, modifiedUser);
+                        calledDone = true;
+                    }
+                    if (err) {
+                        console.log('update refresh token failed :(');
+                        console.log(err);
+                    } else {
+                        console.log('update refresh token returned neither a user nor and error');
+                    }
                 });
+            if (!calledDone) {
+                let modifiedUser = modifyUserForPassport(returnedUser, profile);
+                console.log("Existing Spotify user: %O", modifiedUser);
+                done(err, modifiedUser);
+                calledDone = true;
+            }
         } else {
             // user isn't in the db, so we gotta create one
             new SpotifyUser(getDbUserParams(profile, refreshToken)).save()

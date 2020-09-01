@@ -15,7 +15,8 @@ const PORT = process.env.PORT || 4000;
 const db = process.env.MONGODB_DATABASE_URL;
 mongoose.connect(db, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useCreateIndex: true // default index creation uses 'ensureIndex' which is deprecated
 })
 .then(() => console.log("MongoDB connected!"))
 .catch(err => console.log(err));
@@ -26,7 +27,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(session({
-    secret: "keyboard cat",
+    secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true
 }));
