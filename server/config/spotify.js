@@ -1,34 +1,40 @@
 const SpotifyWebAPI = require('spotify-web-api-node');
 
-// Spotify API wrapper instance with the app's credentials
-// also there's definitely a nicer way to do this that basically
-// extends the object and makes it a real constructor function 
-const UserSpotifyAPI = () => {
-    const spotifyApiParams = {
-        redirectUri: '/auth/spotify/callback',
-        clientID: process.env.SPOTIFY_CLIENT_ID,
-        clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+/**
+ * Wrapper for the SpotifyWebAPI with the app client creds;
+ * keeps a reference to the user it's using for authentication
+ */
+class UserSpotifyAPI extends SpotifyWebAPI {
+    constructor(access, user) {
+        super({
+            redirectUri: '/auth/spotify/callback',
+            clientID: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+        });
+
+        if (access) {
+            this.setTokens(access);
+        }
+        if (user) {
+            this.setUser(user);
+        }
     }
 
-    const userSpotifyAPI = new SpotifyWebAPI(spotifyApiParams);
-
-    userSpotifyAPI.setTokens = (access) => {
-        userSpotifyAPI.setAccessToken(access.accessToken);
-        userSpotifyAPI.setRefreshToken(access.refreshToken);
-        return userSpotifyAPI
+    setTokens(access) {
+        this.setAccessToken(access.accessToken);
+        this.setRefreshToken(access.refreshToken);
+        return this;
     }
 
-    userSpotifyAPI.resetTokens = () => {
-        userSpotifyAPI.resetAccessToken();
-        userSpotifyAPI.resetRefreshToken();
-        return userSpotifyAPI
+    setUser() {
+        this.user = user;
+        return this;
     }
 
-    return userSpotifyAPI;
 }
 
 // Spotify API wrapper instance with the app Spotify account's credentials
-const appSpotifyAPI = UserSpotifyAPI();
+const appSpotifyAPI = new UserSpotifyAPI();
 
 // we've saved the refresh token for the app spotify account, which will 
 // allow us to create and modify playlists on the app spotify account
