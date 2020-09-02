@@ -16,7 +16,8 @@ const db = process.env.MONGODB_DATABASE_URL;
 mongoose.connect(db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true // default index creation uses 'ensureIndex' which is deprecated
+    useCreateIndex: true, // default index creation uses 'ensureIndex' which is deprecated
+    useFindAndModify: false // using findOneAndUpdate without this is deprecated
 })
 .then(() => console.log("MongoDB connected!"))
 .catch(err => console.log(err));
