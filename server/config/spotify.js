@@ -53,13 +53,11 @@ class UserSpotifyAPI extends SpotifyWebAPI {
     async tryWithNewAccessToken(funcName, args) {
         if (!this.getRefreshToken()) {
             console.log("couldn't find a refresh token");
-            // throw new Error("can't get new access token without a refresh token");
             await this.setRefreshTokenFromDB();
         }
         try {
             console.log("requesting new access token");
             const data = await this.refreshAccessToken();
-            // console.log(data);
             this.setAccessToken(data.body['access_token']);
             console.log('set new access token:', data.body['access_token']);
             console.log('trying your function again');

@@ -6,7 +6,7 @@ const path = require('path');
 const passport = require('passport');
 
 require('dotenv').config();
-require('./server/config/passport')(passport);
+require('./server/config/passport').config(passport);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
