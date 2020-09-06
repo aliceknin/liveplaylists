@@ -9,7 +9,7 @@ function FloatingUser(props) {
     if (!isEmpty(user)) {
         return (
             <div>
-                <Link to="user">{user.dbUser.name}</Link>
+                <Link to="user">{user.name}</Link>
             </div>
         );
     } else {

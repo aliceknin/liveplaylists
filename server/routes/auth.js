@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 
+function removeRefreshToken(reqUser) {
+    let frontEndUser = { ...reqUser };
+    delete frontEndUser.refreshToken;
+    delete frontEndUser.__enc_refreshToken;
+    console.log('frontEndUser: %O', frontEndUser);
+    return frontEndUser;
+}
+
 router.get('/spotify', passport.authenticate('spotify', {
     scope: [
         'user-read-private',
@@ -32,7 +40,7 @@ router.get('/user', (req, res) => {
         console.log('req.user: %O', req.user);
         console.log('req.session: %O', req.session);
         console.log('passport session user: %O', req.session.passport.user);
-        res.json(req.user);
+        res.json(removeRefreshToken(req.user));
     } else {
         console.log('no user here')
         res.send({});

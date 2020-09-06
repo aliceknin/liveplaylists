@@ -62,7 +62,7 @@ function findOrCreateUser(profile, refreshToken) {
 function getUserForPassport(profile, refreshToken, done) {
     findOrCreateUser(profile, refreshToken)
     .then((user) => {
-        let passportUser = modifyUserForPassport(user, profile);
+        let passportUser = user.toJSON();
         console.log(passportUser);
         done(null, passportUser);
     }, (err) => {
@@ -91,16 +91,13 @@ const config = (passport) => {
 
     passport.serializeUser((user, done) => {
         console.log("serializing user!");
-        done(null,  {id: user.id, profile: user.profile});
+        done(null,  { id: user._id });
     });
 
     passport.deserializeUser((params, done) => {
         SpotifyUser.findById(params.id, (err, user) => {
             if (user) {
-                let passportUser = {
-                    dbUser: user,
-                    profile: params.profile
-                }
+                let passportUser = user.toJSON();
                 console.log("deserializing user!");
                 done(err, passportUser);
             } else {

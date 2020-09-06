@@ -160,7 +160,7 @@ function createUserAppPlaylist(userSpotifyAPI) {
         console.log('trying to update the database...');
         // we also need to update the user's playlistID in the database
         SpotifyUser.findOneAndUpdate(
-            { spotifyID: userSpotifyAPI.user.dbUser.spotifyID }, 
+            { spotifyID: userSpotifyAPI.user.spotifyID }, 
             { $set: { playlistID } })
     }).then(() => {
         console.log('successfully created and followed a new app playlist!');
@@ -174,8 +174,8 @@ function createUserAppPlaylist(userSpotifyAPI) {
 // find or create playlist to modify (returns the playlist ID)
 async function findOrCreateUserAppPlaylist(userSpotifyAPI) {
     if (userSpotifyAPI.user) {
-        if (userSpotifyAPI.user.dbUser.playlistID) {
-            return userSpotifyAPI.user.dbUser.playlistID
+        if (userSpotifyAPI.user.playlistID) {
+            return userSpotifyAPI.user.playlistID
         } else {
             return await createUserAppPlaylist(userSpotifyAPI);
         }
@@ -209,7 +209,7 @@ function saveCopyOfPlaylist(playlistID, userSpotifyAPI) {
     let description;
     let tracks;
     let newPlaylistID;
-    let userSpotifyID = userSpotifyAPI.user.dbUser.spotifyID;
+    let userSpotifyID = userSpotifyAPI.user.spotifyID;
     return userSpotifyAPI.getPlaylist(playlistID, 
         { fields: "name,description,tracks.items(track(uri))" })
     .then(data => {

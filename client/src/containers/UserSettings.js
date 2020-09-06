@@ -22,9 +22,8 @@ class UserSettings extends Component {
                 <div>
                     <p>Here's some info about the user, in case you're looking for that:</p>
                     <ul>
-                        <li>Name: {user.dbUser.name}</li>
-                        <li>Spotify ID: {user.dbUser.spotifyID}</li>
-                        <li>Country: {user.profile.country}</li>
+                        <li>Name: {user.name}</li>
+                        <li>Spotify ID: {user.spotifyID}</li>
                     </ul>
                     <button onClick={user.logout}>
                         Log Out

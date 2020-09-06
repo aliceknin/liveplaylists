@@ -73,7 +73,7 @@ class UserSpotifyAPI extends SpotifyWebAPI {
         console.log("requesting refresh token from db");
         // for some reason our decryption hook doesn't run when 
         // we use 'select', so we gotta get the whole document
-        return SpotifyUser.findOne({_id: this.user.dbUser._id})
+        return SpotifyUser.findOne({_id: this.user._id})
         .then(data => {
             const refreshToken = data.refreshToken;
             this.setRefreshToken(refreshToken);

@@ -4,7 +4,7 @@ const { UserSpotifyAPI } = require('../config/spotify');
 
 router.get('/user/profile', (req, res) => {
     console.log('we made it to the server');
-    console.log('req.user:', req.user.dbUser.name);
+    console.log('req.user:', req.user.name);
     const userSpotifyAPI = new UserSpotifyAPI(req.session.access, req.user);
 
     // userSpotifyAPI.getMe()
