@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import '../styles/PlaylistParameters.scss';
+import LocationSearch from './LocationSearch';
 
 class PlaylistParameters extends Component {
     constructor(props) {
@@ -68,13 +69,7 @@ class PlaylistParameters extends Component {
         return (
             <div className="playlist-parameters">
                 <div className="container">
-                    <div className="form-group">
-                        <label htmlFor="zip-code">ZIP code</label>
-                        <input id="zip-code"
-                            type="text"
-                            value={this.state.zipCode}
-                            onChange={this.setZipCode}/>
-                    </div>
+                    <LocationSearch />
                     <div className="form-group">
                         <label htmlFor="mile-radius">Mile Radius</label>
                         <input id="mile-radius"

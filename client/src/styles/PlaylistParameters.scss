@@ -21,5 +21,52 @@
     }
 }
 
+.location-search {
+    margin-bottom: .25em;
+}
+
+.search-bar {
+    display: block;
+
+    input {
+        display: inline-block!important;
+        margin-bottom: 0!important;
+        
+        &[type=text] {
+            border-radius: 5px 0 0 5px;
+            margin-right: 0;
+            border-right: none;
+        }
+
+        &[type=submit] {
+            border-radius: 0 5px 5px 0;
+            background-color: #e8e8e8;
+            margin-left: 0;
+        }
+    }
+}
+
+.results-list {
+    margin-top: 0;
+    max-height: 400px;
+    padding: 0;
+    border: solid 1px #b7b7b7;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+
+    li {
+        padding: .5em;
+        border-bottom: solid 1px #b7b7b7;
+        list-style-type: none;
+
+        &:hover {
+            background-color: #e8e8e8;
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}
 
 
