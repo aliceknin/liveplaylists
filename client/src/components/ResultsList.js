@@ -1,5 +1,4 @@
 import React from 'react';
-import ResultsListItem from './ResultsListItem';
 
 const ResultsList = (props) => {
     function locationDisplayName(location) {
@@ -14,12 +13,12 @@ const ResultsList = (props) => {
 
     return (
         props.show() &&
-        <ul className="results-list">
+        <ul className="results-list"
+            onClick={props.onClick}>
             {props.locations.map((location) => 
-            <ResultsListItem 
-                key={getKey(location)} 
-                value={locationDisplayName(location)}
-                onClick={props.onClick}/>)}
+            <li key={getKey(location)}>
+                {locationDisplayName(location)}
+            </li>)}
         </ul>
     );
 }

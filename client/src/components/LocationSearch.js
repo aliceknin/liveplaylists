@@ -22,7 +22,9 @@ const LocationSearch = (props) => {
     }
 
     function handleResultClick(event) {
-        setQuery(event.target.textContent);
+        let location = event.target.textContent;
+        setQuery(location);
+        props.setLocation(location);
         setShowResults(false);
     }
 
