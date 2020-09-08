@@ -19,4 +19,10 @@ module.exports = function(app) {
       target: 'http://localhost:4000'
     }
   ));
+  app.use(proxy(
+    '/playlist',
+    {
+      target: 'http://localhost:4000'
+    }
+  ));
 };

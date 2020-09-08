@@ -41,6 +41,7 @@ app.get ('/proof', (req, res) => {
 });
 
 app.use('/auth', require('./server/routes/auth'));
+app.use('/playlist', require('./server/routes/playlist'));
 app.use('/spotify', require('./server/routes/spotify'));
 
 // heroku sets NODE_ENV to "production" by default, 
