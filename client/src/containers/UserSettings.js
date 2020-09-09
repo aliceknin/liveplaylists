@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Link} from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
-import UserService from '../services/UserService';
 import UserProvider from '../contexts/UserProvider';
 
 class UserSettings extends Component {
@@ -10,9 +9,7 @@ class UserSettings extends Component {
         this.state = {
             user: null
         }
-        this.userService = new UserService();
         this.userInfo = this.userInfo.bind(this);
-        this.handleLogout = this.handleLogout.bind(this);
     }
 
     userInfo(user) {
@@ -35,15 +32,6 @@ class UserSettings extends Component {
                 <p>There's no user yet.</p>
             )
         }
-    }
-
-    handleLogout() {
-        this.userService.logout()
-        .then(response => {
-            if (response.status === 200) {
-                this.setState({user: null});
-            }
-        });
     }
 
     render() {

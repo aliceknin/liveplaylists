@@ -32,12 +32,17 @@ class UserSpotifyAPI extends SpotifyWebAPI {
         return this;
     }
 
+    getUser() {
+        return this.user;
+    }
+
     // right now, anyone who calls this has to deal with any errors 
     // that come from the function they want to call, as well as 
     // if they don't have a refresh token or refreshing the access 
     // token fails. is this ideal? should we handle some of these?
     async ensureAccessToken(funcName, args) {
         try { // await converts synchronous calls to a resolved promise, so this will always return a promise
+            console.log('trying your function...');
             return await this[funcName](...args);
         } catch(err) {
             if (err.statusCode === 401) {

@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
 import UserProvider from '../contexts/UserProvider';
 
 function FloatingUser(props) {
     const user = useContext(UserProvider.context);
-    console.log(user);
     if (!isEmpty(user)) {
         return (
             <div>
