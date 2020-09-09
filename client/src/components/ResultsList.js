@@ -12,13 +12,16 @@ const ResultsList = (props) => {
     }
 
     return (
-        props.show() &&
+        props.show &&
         <ul className="results-list"
             onClick={props.onClick}>
             {props.locations.map((location) => 
             <li key={getKey(location)}>
                 {locationDisplayName(location)}
             </li>)}
+            {props.shouldShowMore && 
+            <li onClick={props.showMore}
+                className="show-more">Show More</li>}
         </ul>
     );
 }

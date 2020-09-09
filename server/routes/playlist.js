@@ -24,7 +24,8 @@ router.get('/location', (req, res) => {
         axios.get(SONGKICK_API_URL + 'search/locations.json', {
             params: {
                 query: search_str,
-                apikey: process.env.SONGKICK_API_KEY
+                apikey: process.env.SONGKICK_API_KEY,
+                page: req.query.page || 1
             }
         }).then(apiRes => {
             res.send(apiRes.data);

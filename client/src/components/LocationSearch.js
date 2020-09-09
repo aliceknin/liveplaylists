@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import SearchBar from './SearchBar';
 import ResultsList from './ResultsList';
+import Axios from 'axios';
 
 const LocationSearch = (props) => {
     const [ query, setQuery ] = useState("");
     const [ showResults, setShowResults ] = useState(false);
     const [ locations, setLocations ] = useState([]);
+    const [ page, setPage ] = useState(1);
+    const [ showMore, setShowMore ] = useState(false);
 
     function handleSearchChange(event) {
         setQuery(event.target.value);
     }
 
-    function handleSearchSubmit(event) {
+    async function handleSearchSubmit(event) {
         event.preventDefault();
+        let resultsPage = await searchForLocation(query);
         setLocations(resultsPage.results.location);
-        setShowResults(true);
-    }
-
-    function shouldShowResults() {
-        return showResults;
+        receivedNewLocations(resultsPage);
     }
 
     function handleResultClick(event) {
@@ -28,21 +28,55 @@ const LocationSearch = (props) => {
         setShowResults(false);
     }
 
+    async function handleShowMore(event) {
+        event.stopPropagation();
+        let resultsPage = await searchForLocation(query, page + 1);
+        setLocations(locations.concat(resultsPage.results.location));
+        receivedNewLocations(resultsPage);
+    }
+
+    async function searchForLocation(query, page) {
+        try {
+            let res = await Axios.get('/playlist/location', {
+                params: {
+                    search_str: query,
+                    page: page || 1
+                }
+            });
+            return res.data.resultsPage;
+        } catch(err) {
+            console.log("location search failed", err);
+        }
+    }
+
+    function receivedNewLocations(resultsPage) {
+        setPage(resultsPage.page);
+        setShowResults(true);
+        setShowMore(shouldShowMore(resultsPage));
+    }
+
+    function shouldShowMore(resultsPage) {
+        let resultsShown = resultsPage.page * resultsPage.perPage;
+        return resultsShown < resultsPage.totalEntries;
+    }
+
     return (
         <div className="location-search form-group">
             <SearchBar value={query} 
                     onChange={handleSearchChange}
                     onSearch={handleSearchSubmit}/>
-            <ResultsList show={shouldShowResults}
+            <ResultsList show={showResults}
                         onClick={handleResultClick}
-                        locations={locations} />
+                        locations={locations}
+                        shouldShowMore={showMore}
+                        showMore={handleShowMore}/>
         </div>
     );
 }
 
 export default LocationSearch;
 
-const resultsPage= {
+const resultsPage = {
         "status": "ok",
         "results": {
             "location": [

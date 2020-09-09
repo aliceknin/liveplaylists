@@ -58,6 +58,7 @@
     // border: solid 1px #b7b7b7;
     border-radius: 10px;
     box-shadow: 0 4px 6px hsla(0, 0, 80, 50%);
+    overflow: auto;
 
     li {
         padding: .75em;
@@ -79,6 +80,18 @@
             border-bottom-left-radius: inherit;
             border-bottom-right-radius: inherit;
             // border-bottom: none;
+        }
+    }
+
+    .show-more {
+        padding: .5em;
+        text-align: center;
+        line-height: 1em;
+        
+        &:hover {
+            background-color: #fff;
+            box-shadow: none;
+            text-decoration: underline;
         }
     }
 }
