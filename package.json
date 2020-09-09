@@ -4,27 +4,42 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "start": "node index.js",
     "backend": "nodemon",
     "frontend": "cd client && npm start",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "debug": "concurrently \"nodemon --inspect\" \"npm run frontend\"",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.20.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "mongoose": "^5.7.13",
+    "express-session": "^1.17.1",
+    "mongoose": "^5.10.2",
+    "mongoose-field-encryption": "3.0.6",
     "passport": "^0.4.1",
     "passport-spotify": "^1.1.0",
     "spotify-web-api-node": "^4.0.0"
   },
   "devDependencies": {
-    "concurrently": "^5.0.0",
-    "nodemon": "^2.0.1"
+    "concurrently": "^5.3.0",
+    "jest": "^26.4.2",
+    "nodemon": "^2.0.4"
+  },
+  "jest": {
+    "setupFiles": [
+      "./setupTests.js"
+    ],
+    "testEnvironment": "node",
+    "rootDir": "./server"
+  },
+  "nodemonConfig": {
+    "ignore": ["client/*"]
   }
 }

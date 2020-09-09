@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect } from 'react';
 import isEmpty from 'lodash.isempty';
+
 const UserContext = createContext(null); // set the default user to null
+UserContext.displayName = "UserContext";
 
 const UserProvider = ({children}) => {
     const [user, setUser] = useState({}); 
@@ -14,7 +16,7 @@ const UserProvider = ({children}) => {
         });
     }
 
-    // on every render, fetch the logged in user from the server
+    // when this component mounts, fetch the logged in user from the server
     useEffect(() => {  
         console.log("fetching the user in the user provider");
         fetch('/auth/user')

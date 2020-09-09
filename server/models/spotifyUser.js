@@ -1,7 +1,14 @@
 const mongoose = require('mongoose');
+const { fieldEncryption } = require('mongoose-field-encryption');
 
-const spotifySchema = new mongoose.Schema({
+const SpotifySchema = new mongoose.Schema({
     spotifyID: {
+        type: String,
+        required: true,
+        immutable: true,
+        unique: true
+    },
+    refreshToken: {
         type: String,
         required: true
     },
@@ -18,5 +25,19 @@ const spotifySchema = new mongoose.Schema({
     }
 });
 
-const spotifyUser = mongoose.model('SpotifyUser', spotifySchema);
-module.exports = spotifyUser;
+
+const secret = process.env.MONGOOSE_FIELD_SECRET;
+SpotifySchema.plugin(fieldEncryption, 
+    { fields: ["refreshToken"], secret } );
+
+const SpotifyUser = mongoose.model('SpotifyUser', SpotifySchema);
+
+SpotifyUser.updateRefreshToken = (id, refreshToken, callback) => {
+    return SpotifyUser.findOneAndUpdate(
+        { _id: id },
+        { $set: { refreshToken, __enc_refreshToken: false } },
+        callback
+    );
+}
+
+module.exports = SpotifyUser;

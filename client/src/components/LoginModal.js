@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import ReactModal from 'react-modal';
 import {Link} from 'react-router-dom';
 import "../styles/Modal.scss";
-import UserService from '../services/UserService';
 
 class LoginModal extends Component {
     constructor(props) {
@@ -11,20 +10,6 @@ class LoginModal extends Component {
             test: "",
             login: ""
         }
-        this.handleProof = this.handleProof.bind(this);
-        this.handleLogin = this.handleLogin.bind(this);
-        this.userService = new UserService();
-    }
-
-    handleProof(evt) {
-        this.userService.getProof()
-        .then(proof => this.setState({test: proof.test}));
-    }
-
-    handleLogin(evt) {
-        console.log('the button worked');
-        this.userService.login()
-        // .then(this.setState({login: "I tried"}));
     }
 
     render() {
@@ -39,12 +24,6 @@ class LoginModal extends Component {
                 <button onClick={this.props.onHide}>Nevermind</button>
                 <button onClick={this.props.onHide}>
                     <Link to='user'>User Settings Placeholder</Link>
-                </button>
-                <button onClick={this.handleProof}>
-                    Test Server Connection
-                </button>
-                <button onClick={this.handleLogin}>
-                    Test Login
                 </button>
                 <button>
                     <a href='/auth/spotify'>Test Login Link?</a>
