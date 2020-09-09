@@ -6,7 +6,7 @@ class PlaylistParameters extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            location:"",
+            location:{},
             dateRange:null
         }
         this.setLocation = this.setLocation.bind(this);

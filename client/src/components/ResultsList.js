@@ -16,7 +16,8 @@ const ResultsList = (props) => {
         <ul className="results-list"
             onClick={props.onClick}>
             {props.locations.map((location) => 
-            <li key={getKey(location)}>
+            <li key={getKey(location)}
+                value={location.metroArea.id}>
                 {locationDisplayName(location)}
             </li>)}
             {props.shouldShowMore && 
