@@ -3,10 +3,10 @@ import React from 'react';
 const SearchBar = (props) => {
     return (
         <form onSubmit={props.onSearch}>
-            <label>Search for a City</label>
             <div className="search-bar">
-                <input type="text" 
-                    // placeholder="Search for a city"
+                <input type="text"
+                    aria-label="Search for a city" 
+                    placeholder="Search for a city"
                     value={props.value}
                     onChange={props.onChange}></input>
                 <button type="submit">

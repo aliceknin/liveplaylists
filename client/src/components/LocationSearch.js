@@ -64,7 +64,7 @@ const LocationSearch = (props) => {
     }
 
     return (
-        <div className="location-search form-group">
+        <div className="location-search">
             <SearchBar value={query} 
                     onChange={handleSearchChange}
                     onSearch={handleSearchSubmit}/>

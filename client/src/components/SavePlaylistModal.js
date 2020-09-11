@@ -29,7 +29,8 @@ class SavePlaylistModal extends Component {
         this.setState({playlistType: evt.target.value})
     }
 
-    handleSubmit() {
+    handleSubmit(evt) {
+        evt.preventDefault();
         // (create the playlist with the spotify api).then
         console.log(this.state.playlistTitle);
         console.log(this.state.playlistDescription);
@@ -44,7 +45,7 @@ class SavePlaylistModal extends Component {
                         className="modal"
                         closeTimeoutMS={200}>
                 <h2>Save Playlist</h2>
-                <div className="form-container">
+                <form onSubmit={this.handleSubmit} className="form-container">
                     <input placeholder="Title"
                         value={this.state.playlistTitle}
                         onChange={this.setPlaylistTitle}/>
@@ -71,9 +72,9 @@ class SavePlaylistModal extends Component {
                     </fieldset>
                     <div className="buttons-container">
                         <button className="button-light" onClick={this.props.onHide}>Cancel</button>
-                        <button onClick={this.handleSubmit}>Save Playlist</button>
+                        <button type="submit">Save Playlist</button>
                     </div>
-                </div>
+                </form>
             </ReactModal>
         )
     }

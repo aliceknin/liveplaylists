@@ -1,8 +1,13 @@
 .playlist-parameters {
+
     .container {
         display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
+        align-items: center;
+        flex-flow: column nowrap;
+
+        & > * {
+            margin: 1em 0;
+        }
     }
 
     .form-group {
@@ -26,7 +31,8 @@
 }
 
 .location-search {
-    margin-bottom: .25em;
+    max-width: 600px;
+    width: 100%;
 }
 
 .search-bar {
@@ -37,6 +43,7 @@
         border-radius: 5px 0 0 5px;
         margin-right: 0;
         border-right: none;
+        flex-grow: 2;
     }
 
     button {

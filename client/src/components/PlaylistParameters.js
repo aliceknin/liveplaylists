@@ -58,13 +58,13 @@ class PlaylistParameters extends Component {
             <div className="playlist-parameters">
                 <div className="container">
                     <LocationSearch setLocation={this.setLocation}/>
-                    <div className="form-group">
+                    {/* <div className="form-group">
                         <label htmlFor="date-range">Date Range</label>
                         <input id="date-range"
                             type="text"
                             value=""
                             onChange={this.setDateRange}/>
-                    </div>
+                    </div> */}
                 </div>
                 <button onClick={this.handleSubmit}>{this.props.buttonText}</button>
             </div>
