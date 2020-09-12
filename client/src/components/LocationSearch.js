@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SearchBar from './SearchBar';
 import ResultsList from './ResultsList';
 import Axios from 'axios';
+import UseMyLocation from './UseMyLocation';
 
 const LocationSearch = (props) => {
     const [ query, setQuery ] = useState("");
@@ -38,11 +39,16 @@ const LocationSearch = (props) => {
         receivedNewLocations(resultsPage);
     }
 
+    function recieveGeoLocation(location) {
+        setQuery(location.displayName);
+        props.setLocation(location);
+    }
+
     async function searchForLocation(query, page) {
         try {
             let res = await Axios.get('/playlist/location', {
                 params: {
-                    search_str: query,
+                    query: query,
                     page: page || 1
                 }
             });
@@ -73,6 +79,7 @@ const LocationSearch = (props) => {
                         locations={locations}
                         shouldShowMore={showMore}
                         showMore={handleShowMore}/>
+            <UseMyLocation recieveLocation={recieveGeoLocation}/>
         </div>
     );
 }

@@ -1,11 +1,7 @@
 import React from 'react';
+import { locationDisplayName } from '../utils/LocationUtils';
 
 const ResultsList = (props) => {
-    function locationDisplayName(location) {
-        const city = location.city.displayName;
-        const locale = location.city.state || location.city.country;
-        return city + ", " + locale.displayName;
-    }
 
     function getKey(location) {
         return location.city.displayName + location.metroArea.id.toString();
