@@ -32,11 +32,12 @@ SpotifySchema.plugin(fieldEncryption,
 
 const SpotifyUser = mongoose.model('SpotifyUser', SpotifySchema);
 
-SpotifyUser.updateRefreshToken = (id, refreshToken, callback) => {
+SpotifyUser.updateRefreshToken = (id, refreshToken, userUpdates) => {
     return SpotifyUser.findOneAndUpdate(
         { _id: id },
-        { $set: { refreshToken, __enc_refreshToken: false } },
-        callback
+        { $set: { refreshToken, __enc_refreshToken: false },
+          ...userUpdates },
+        { new: true }
     );
 }
 

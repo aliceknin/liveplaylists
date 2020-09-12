@@ -28,7 +28,7 @@ router.get('/spotify/callback',
     (req, res) => {
         console.log("-------------------------------");
         console.log("spotify redirect");
-        console.log(`req.user: ${req.user}`);
+        console.log('req.user: %O', req.user);
         console.log('passport session user: %O', req.session.passport.user);
         res.redirect('/user')
 });
