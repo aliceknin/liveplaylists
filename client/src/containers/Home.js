@@ -4,18 +4,21 @@ import LoginModal from '../components/LoginModal';
 import SavePlaylistModal from '../components/SavePlaylistModal';
 import PlaylistParameters from '../components/PlaylistParameters';
 import FloatingUser from '../components/FloatingUser';
+import SpotifyEmbed from '../components/SpotifyEmbed';
 
 class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loginModalOpen:false,
-            savePlaylistModalOpen:false
+            savePlaylistModalOpen:false,
+            playlistID:""
         }
         this.openLoginModal = this.openLoginModal.bind(this);
         this.closeLoginModal = this.closeLoginModal.bind(this);
         this.openSavePlaylistModal = this.openSavePlaylistModal.bind(this);
         this.closeSavePlaylistModal = this.closeSavePlaylistModal.bind(this);
+        this.receivePlaylist = this.receivePlaylist.bind(this);
     }
 
     openLoginModal() {
@@ -34,6 +37,10 @@ class Home extends Component {
         this.setState({savePlaylistModalOpen:false});
     }
 
+    receivePlaylist(playlistID) {
+        this.setState({playlistID});
+    }
+
     render() {
         return (
             <div className="home">
@@ -49,10 +56,21 @@ class Home extends Component {
                 </section>
                 <main>
                     <div className="inner">
-                        <PlaylistParameters buttonText="Create Playlist"/>
-                        <button onClick={this.openSavePlaylistModal}>Save Playlist</button>
-                        <SavePlaylistModal isOpen={this.state.savePlaylistModalOpen}
+                        {this.state.playlistID ? 
+                            <>
+                            <SpotifyEmbed playlistID={this.state.playlistID}/>
+                            <div className="buttons-container">
+                                <button onClick={()=> this.setState({playlistID: ""})}>Create New Playlist</button>
+                                <button onClick={this.openSavePlaylistModal}>Save Playlist</button>
+                            </div>
+                            <SavePlaylistModal isOpen={this.state.savePlaylistModalOpen}
                                         onHide={this.closeSavePlaylistModal}/>
+                            </>
+                            :
+                            <PlaylistParameters buttonText="Create Playlist" 
+                                receivePlaylist={this.receivePlaylist}/>
+                        }
+
                     </div>
                 </main>
             </div>

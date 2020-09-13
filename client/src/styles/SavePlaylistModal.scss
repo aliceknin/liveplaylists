@@ -22,21 +22,4 @@
             }
         }
     }
-
-    .buttons-container {
-        button {
-            display: block;
-            margin: .5em auto;
-        }
-
-        @media (min-width: 435px) {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;
-            button {
-                display: inline;
-                margin: 1em 0 1em 1em;
-            }
-        }
-    }
 }

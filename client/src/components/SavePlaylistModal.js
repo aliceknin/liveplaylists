@@ -46,10 +46,12 @@ class SavePlaylistModal extends Component {
                         closeTimeoutMS={200}>
                 <h2>Save Playlist</h2>
                 <form onSubmit={this.handleSubmit} className="form-container">
-                    <input placeholder="Title"
+                    <input aria-label="Title"
+                        placeholder="Title"
                         value={this.state.playlistTitle}
                         onChange={this.setPlaylistTitle}/>
-                    <textarea placeholder="Description"
+                    <textarea aria-label="Description"
+                              placeholder="Description"
                               value={this.state.playlistDescription}
                               onChange={this.setPlaylistDescription}/>
                     <fieldset>

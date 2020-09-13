@@ -45,6 +45,7 @@ class PlaylistParameters extends Component {
         // (which will probably be separated out into multiple 
         // separate methods when I figure out what I'm doing)
         console.log("creating playlist... (not really)");
+        this.props.receivePlaylist("7GOJYqyQqCUz4fyfvHb13L");
     }
 
     savePlaylistParameters() {
