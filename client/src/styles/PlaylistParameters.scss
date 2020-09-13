@@ -41,8 +41,9 @@
     font-size: .75em;
     padding: .5em;
 
-    &:hover {
+    span:hover {
         text-decoration: underline;
+        cursor: pointer;
     }
 }
 
@@ -111,6 +112,7 @@
             background-color: #fff;
             box-shadow: none;
             text-decoration: underline;
+            cursor: pointer;
         }
     }
 }

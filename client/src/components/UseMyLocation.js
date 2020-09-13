@@ -48,7 +48,7 @@ const UseMyLocation = (props) => {
     return (
         <div className="use-location"
             onClick={handleClick}>
-            Use my location <i className="fa fa-map-marker"></i>
+            <span>Use my location <i className="fa fa-map-marker"></i></span>
         </div>
     )
 }

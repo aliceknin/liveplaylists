@@ -1,0 +1,46 @@
+.user-container {
+    background-color: #dbdbdb;
+    border-radius: 2em;
+    min-width: 2em;
+    max-width: 2em;
+    height: 2em;
+    float: right;
+    margin: 1em;
+    transition: max-width .75s ease;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: nowrap;
+    line-height: 1em;
+    box-shadow: 0 2px 5px hsla(0, 0, 0, .15),
+                0 4px 15px hsla(0, 0, 0, .2);
+    a {
+        color: #000;
+    }
+
+    & > * {
+        padding: .375em .6em;
+        display: inline-block;
+    }
+    .icon {
+        position: relative;
+        background-color: #e8e8e8;
+        border-radius: 2em;
+        min-width: 2em;
+        max-width: 2em;
+        overflow: hidden;
+        img {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 2em;
+            width: 2em;
+        }
+    }
+    .text {
+        white-space: nowrap;
+    }
+
+    &:hover {
+        max-width: 200px;
+    }
+}
