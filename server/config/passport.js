@@ -50,13 +50,13 @@ function findOrCreateUser(profile, refreshToken) {
         if (foundUser) {
             return updateUserForPassport(foundUser, profile, refreshToken)
             .then((updatedUser) => {
-                console.log("Existing Spotify user:");
+                console.log("existing Spotify user");
                 return updatedUser;
             });
         } else {
             return new SpotifyUser(getDbUserParams(profile, refreshToken)).save()
             .then(newUser => {
-                console.log("New Spotify user:");
+                console.log("new Spotify user");
                 return newUser;
             });
         }
@@ -67,7 +67,7 @@ function getUserForPassport(profile, refreshToken, done) {
     findOrCreateUser(profile, refreshToken)
     .then((user) => {
         let passportUser = modifyUserForPassport(user, profile);
-        console.log("got user for passport", passportUser);
+        console.log("got user for passport");
         done(null, passportUser);
     }, (err) => {
         done(err, null);
@@ -123,9 +123,3 @@ module.exports = {
     findOrCreateUser,
     getUserForPassport
  };
-
- /*
- note: after the refactor of the getUserForPassport flow, 
- it takes noticeably longer to load the user data. perhaps
- it's because there are more .thens or something. 
- */
