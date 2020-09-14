@@ -16,20 +16,18 @@ Metro Area Calendar search:
 
 router.get('/location', (req, res) => {
     // search for the metro area the user wants to find upcoming concerts from which to create a playlist
-    let search_str = req.query.search_str;
-    if (!search_str) {
+    if (!req.query) {
         console.log("can't search without a query");
         res.status(400).send("400 Bad Request: can't search without a query");
     } else {
         axios.get(SONGKICK_API_URL + 'search/locations.json', {
             params: {
-                query: search_str,
-                apikey: process.env.SONGKICK_API_KEY,
-                page: req.query.page || 1
+                ...req.query,
+                apikey: process.env.SONGKICK_API_KEY
             }
         }).then(apiRes => {
             res.send(apiRes.data);
-            console.log("you tried to search for", search_str);
+            console.log("you tried to search for %O", req.query);
         }).catch(err => {
             console.log('something went wrong with the songkick api location search', err);
         });

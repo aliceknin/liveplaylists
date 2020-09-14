@@ -7,24 +7,28 @@ function getDbUserParams(spotifyProfile, refreshToken) {
         spotifyID: spotifyProfile.id,
         refreshToken: refreshToken
     };
-    if (spotifyProfile.photos && spotifyProfile.photos.length > 0) {
-        userParams.thumbURL = spotifyProfile.photos[0];
-    }
     return userParams;
 }
 
 function modifyUserForPassport(user, profile) {
-    let modifiedUser = user;
-    modifiedUser.profile = profile._json;
+    let modifiedUser = user.toJSON();
+    if (profile.photos && profile.photos.length > 0) {
+        modifiedUser.thumbURL = profile.photos[0];
+    }
+    modifiedUser.product = profile.product;
     return modifiedUser;
 }
 
-function updateUserForPassport(user, refreshToken) {
+function updateUserForPassport(user, profile, refreshToken) {
+    let userUpdates = {};
+    if (user.name !== profile.displayName) {
+        userUpdates.name = profile.displayName;
+    }
 /* this update was originally to update the old users to include the
     new attribute, but I should also look into whether it's best 
     practice to update refreshTokens (like, do old ones eventually 
     expire if you get issued enough new ones) */
-    return SpotifyUser.updateRefreshToken(user._id, refreshToken)
+    return SpotifyUser.updateRefreshToken(user._id, refreshToken, userUpdates)
     .then((updatedUser) => {
         if (updatedUser) {
             console.log("updated user refresh token in the db");
@@ -38,13 +42,13 @@ function updateUserForPassport(user, refreshToken) {
         console.log(err);
         return user;
     });
-}
+} 
 
 function findOrCreateUser(profile, refreshToken) {
     return SpotifyUser.findOne({spotifyID: profile.id})
     .then((foundUser) => {
         if (foundUser) {
-            return updateUserForPassport(foundUser, refreshToken)
+            return updateUserForPassport(foundUser, profile, refreshToken)
             .then((updatedUser) => {
                 console.log("Existing Spotify user:");
                 return updatedUser;
@@ -62,8 +66,8 @@ function findOrCreateUser(profile, refreshToken) {
 function getUserForPassport(profile, refreshToken, done) {
     findOrCreateUser(profile, refreshToken)
     .then((user) => {
-        let passportUser = user.toJSON();
-        console.log(passportUser);
+        let passportUser = modifyUserForPassport(user, profile);
+        console.log("got user for passport", passportUser);
         done(null, passportUser);
     }, (err) => {
         done(err, null);
@@ -91,13 +95,16 @@ const config = (passport) => {
 
     passport.serializeUser((user, done) => {
         console.log("serializing user!");
-        done(null,  { id: user._id });
+        done(null,  { id: user._id, profile: {
+            photos: user.thumbURL ? [user.thumbURL] : null,
+            product: user.product
+        }});
     });
 
     passport.deserializeUser((params, done) => {
         SpotifyUser.findById(params.id, (err, user) => {
             if (user) {
-                let passportUser = user.toJSON();
+                let passportUser = modifyUserForPassport(user, params.profile);
                 console.log("deserializing user!");
                 done(err, passportUser);
             } else {

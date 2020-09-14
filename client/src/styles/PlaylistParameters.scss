@@ -1,8 +1,13 @@
 .playlist-parameters {
+
     .container {
         display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
+        align-items: center;
+        flex-flow: column nowrap;
+
+        & > * {
+            margin: 1em 0;
+        }
     }
 
     .form-group {
@@ -26,7 +31,20 @@
 }
 
 .location-search {
-    margin-bottom: .25em;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+}
+
+.use-location {
+    text-align: center;
+    font-size: .75em;
+    padding: .5em;
+
+    span:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
 }
 
 .search-bar {
@@ -36,7 +54,9 @@
     input[type=text] {
         border-radius: 5px 0 0 5px;
         margin-right: 0;
-        border-right: none;
+        // border-right: none;
+        flex-grow: 2;
+        min-width: 130px;
     }
 
     button {
@@ -57,8 +77,9 @@
     padding: 0;
     // border: solid 1px #b7b7b7;
     border-radius: 10px;
-    box-shadow: 0 4px 6px hsla(0, 0, 80, 50%);
+    box-shadow: 0 4px 6px hsla(0, 0, 0, .15);
     overflow: auto;
+    width: 100%;
 
     li {
         padding: .75em;
@@ -92,6 +113,7 @@
             background-color: #fff;
             box-shadow: none;
             text-decoration: underline;
+            cursor: pointer;
         }
     }
 }
