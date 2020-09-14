@@ -54,8 +54,9 @@
     input[type=text] {
         border-radius: 5px 0 0 5px;
         margin-right: 0;
-        border-right: none;
+        // border-right: none;
         flex-grow: 2;
+        min-width: 130px;
     }
 
     button {
@@ -76,7 +77,7 @@
     padding: 0;
     // border: solid 1px #b7b7b7;
     border-radius: 10px;
-    box-shadow: 0 4px 6px hsla(0, 0, 80, 50%);
+    box-shadow: 0 4px 6px hsla(0, 0, 0, .15);
     overflow: auto;
     width: 100%;
 
