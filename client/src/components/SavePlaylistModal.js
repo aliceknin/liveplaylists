@@ -3,6 +3,7 @@ import ReactModal from 'react-modal';
 import "../styles/Modal.scss";
 import '../styles/SavePlaylistModal.scss';
 import RadioButtons from './RadioButtons';
+import axios from 'axios';
 
 const SavePlaylistModal = (props) => {
     const [title, setTitle] = useState("");
@@ -21,12 +22,24 @@ const SavePlaylistModal = (props) => {
         setType(evt.target.value);
     }
 
-    function handleSubmit(evt) {
+  async function handleSubmit(evt) {
         evt.preventDefault();
-        // (create the playlist with the spotify api).then
-        console.log(title);
-        console.log(description);
-        props.onHide();
+        try {
+            console.log("saving playlist", props.playlistID);
+            const res = await axios.get('/playlist/save', {
+                params: {
+                    playlistID: props.playlistID,
+                    name: title,
+                    description: description
+                }
+            })
+            let playlistCopyID = res.data;
+            console.log("saved copy of playist!", playlistCopyID)
+            props.onHide();
+            return playlistCopyID;
+        } catch (err) {
+            console.log("couldn't save copy of playlist", err);
+        }
     }
 
     const options = [

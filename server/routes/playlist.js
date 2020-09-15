@@ -11,6 +11,7 @@ router.get('/location', async (req, res) => {
         if (!req.query) {
             console.log("can't search without a query");
             res.status(400).send("400 Bad Request: can't search without a query");
+            return;
         }
         const data = await searchForLocation(req.query);
         res.send(data);
@@ -25,16 +26,34 @@ router.get('/create', async (req, res) => {
     try {
         console.log("attempting to create a playlist for user", req.user);
         const pc = new PlaylistCreator(req.user, req.session.access);
-        const data = await pc.createLivePlaylist(req.query);
-        res.send(data);
+        const createdPlaylistID = await pc.createLivePlaylist(req.query);
+        res.send(createdPlaylistID);
         console.log("finished creating playlist");
     } catch (err) {
         console.log("couldn't create playlist", err);
     }
 });
 
-router.post('/save', (req, res) => {
+router.get('/save', async (req, res) => {
     // save a copy of the given playlist to the logged in user's spotify account
+    try {
+        if (!req.query || !req.query.playlistID) {
+            console.log("need playlistID to save copy of playlist");
+            res.status(400).send("400 Bad Request: need playlistID to save copy of playlist");
+            return;
+        }
+        console.log("attempting to save a playlist for user", req.user);
+        const pc = new PlaylistCreator(req.user, req.session.access);
+        const playlistCopyID = await pc.saveCopyOfPlaylist(
+            req.query.playlistID,
+            req.query.name,
+            req.query.description
+            );
+        res.send(playlistCopyID);
+        console.log("finished saving playlist");
+    } catch (err) {
+        console.log("couldn't save playlist", err);
+    }
 });
 
 router.post('/auto-creation-params', (req, res) => {

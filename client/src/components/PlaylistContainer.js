@@ -19,7 +19,8 @@ const PlaylistContainer = () => {
                     Save Playlist
                 </button>
             </div>
-            <SavePlaylistModal isOpen={saveModalOpen}
+            <SavePlaylistModal playlistID={playlistID}
+                isOpen={saveModalOpen}
                 onHide={() => setSaveModalOpen(false)}/>
             </>
             :

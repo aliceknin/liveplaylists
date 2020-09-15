@@ -152,17 +152,15 @@ class PlaylistCreator {
     }
 
     // save a copy of the playlist to the user's account
-    saveCopyOfPlaylist(playlistID) {
-        let name;
-        let description;
+    saveCopyOfPlaylist(playlistID, name, description) {
         let tracks;
         let newPlaylistID;
         let userSpotifyID = this.user.spotifyID;
         return this.userSpotifyAPI.getPlaylist(playlistID, 
             { fields: "name,description,tracks.items(track(uri))" })
         .then(data => {
-            name = data.body.name;
-            description = data.body.description;
+            name = name || data.body.name;
+            description = description || data.body.description;
             tracks = data.body.tracks.items
                      .map(trackItem => trackItem.track.uri);
             return { name, description, tracks };
