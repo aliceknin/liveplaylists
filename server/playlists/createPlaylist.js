@@ -36,6 +36,10 @@ class PlaylistCreator {
         return this.userSpotifyAPI.searchArtists(artist.displayName)
         .then(data => {
             // extract the spotify ID from the first result
+            if (!data.body.artists.items[0]) {
+                console.log("no results for", artist.displayName);
+                return "";
+            }
             return data.body.artists.items[0].id
         }).catch(err => {
             console.log("couldn't get artist spotify ID", err);
@@ -49,6 +53,9 @@ class PlaylistCreator {
 
     // get the spotify URIs of each artist's top tracks
     getArtistTopTrackURIs(artistID) {
+        if (!artistID) {
+            return [];
+        }
         return this.userSpotifyAPI.getArtistTopTracks(artistID, 'from_token')
         .then(data => {
             return data.body.tracks.map(track => track.uri);
@@ -116,13 +123,11 @@ class PlaylistCreator {
 
     // add the resulting list of tracks to the playlist
     updatePlaylist(playlistID, tracks) {
-        console.log("trying to update the playlist", playlistID);
-        console.log("with tracks", tracks);
-        appSpotifyAPI.ensureAccessToken('replaceTracksInPlaylist', [
+        return appSpotifyAPI.ensureAccessToken('replaceTracksInPlaylist', [
             playlistID,
             tracks
-        ]).then(data => {
-            console.log(data);
+        ]).then(() => {
+            console.log("added tracks!");
         }).catch(err => {
             console.log(err);
         });
@@ -144,7 +149,7 @@ class PlaylistCreator {
             const topTrackLists = await this.getAllArtistsTopTrackURIs(artistIDs);
             const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
             const playlistID = await this.findOrCreateUserAppPlaylist();
-            this.updatePlaylist(playlistID, tracks);
+            await this.updatePlaylist(playlistID, tracks);
             return playlistID;
         } catch (err) {
             console.log("something went wrong creating the Live Playlist", err);

@@ -41,8 +41,15 @@ test("should get a flat list of artist objects from a list of events", () => {
         
     ]
 
+    let user = {
+        name: 'Alice Nin',
+        spotifyID: '12140404407'
+    }
+
+    let pc = new PlaylistCreator(user);
+
     let artists = ["Alice", "Bob", "Carol", "Donovan"];
-    let artistsFromEvents = PlaylistCreator.getArtistsFromEvents(events);
+    let artistsFromEvents = pc.getArtistsFromEvents(events);
 
     expect(artistsFromEvents.map(artist => artist.displayName)).toEqual(artists);
 });

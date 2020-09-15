@@ -4,7 +4,8 @@ const RadioButtons = (props) => {
     return (
         <fieldset>
             {props.options.map((option) => 
-                <div className="form-group">
+                <div className="form-group"
+                     key={option.value}>
                     <input type="radio" id={option.value} 
                                         name={option.value} 
                                         value={option.value} 

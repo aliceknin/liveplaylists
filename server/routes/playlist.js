@@ -24,7 +24,7 @@ router.get('/location', async (req, res) => {
 router.get('/create', async (req, res) => {
     // create playlist from params on the app spotify account
     try {
-        console.log("attempting to create a playlist for user", req.user);
+        console.log("attempting to create a playlist");
         const pc = new PlaylistCreator(req.user, req.session.access);
         const createdPlaylistID = await pc.createLivePlaylist(req.query);
         res.send(createdPlaylistID);
@@ -42,7 +42,7 @@ router.get('/save', async (req, res) => {
             res.status(400).send("400 Bad Request: need playlistID to save copy of playlist");
             return;
         }
-        console.log("attempting to save a playlist for user", req.user);
+        console.log("attempting to save a playlist");
         const pc = new PlaylistCreator(req.user, req.session.access);
         const playlistCopyID = await pc.saveCopyOfPlaylist(
             req.query.playlistID,
