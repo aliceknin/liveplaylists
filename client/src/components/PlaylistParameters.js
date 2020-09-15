@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import '../styles/PlaylistParameters.scss';
 import LocationSearch from './LocationSearch';
+import axios from 'axios';
 
 const PlaylistParameters = (props) => {
     const [location, setLocation] = useState({});
 
-    function handleSubmit() {
+    async function handleSubmit() {
         switch (props.buttonText) {
             case "Create Playlist":
-                createPlaylistFromParameters();
+                await createPlaylistFromParameters();
                 break;
             case "Save Playlist Parameters":
                 savePlaylistParameters();
@@ -19,12 +20,20 @@ const PlaylistParameters = (props) => {
         }
     }
 
-    function createPlaylistFromParameters() {
-        // create playlist with spotify and bandsintown APIs
-        // (which will probably be separated out into multiple 
-        // separate methods when I figure out what I'm doing)
-        console.log("creating playlist from upcoming events in", location);
-        props.receivePlaylist("7GOJYqyQqCUz4fyfvHb13L");
+    async function createPlaylistFromParameters() {
+        try {
+            console.log("creating playlist from upcoming events in", location);
+            const res = await axios.get('/playlist/create', {
+                params: {
+                    metroID: location.metroID
+                }
+            });
+            let playlistID = res.data;
+            console.log("created playlist!", playlistID);
+            props.receivePlaylist(playlistID);
+        } catch (err) {
+            console.log("couldn't create playlist from parameters", err);
+        }
     }
 
     function savePlaylistParameters() {

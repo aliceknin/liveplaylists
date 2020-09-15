@@ -1,5 +1,6 @@
 const { appSpotifyAPI, UserSpotifyAPI } = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
+const { getUpcomingEvents } = require('../services/songkickService');
 
 /*
 This is a sketch of all the functions I think I'll need to 
@@ -16,16 +17,14 @@ class PlaylistCreator {
         this.userSpotifyAPI = new UserSpotifyAPI(access, user)
     }
 
-    // get the location to search
-
     // reduce upcoming events to a list of artist objects
     getArtistsFromEvents(events) {
-        if (!events) {
+        if (!events || events.length === 0) {
             return;
         }
         return events.reduce((artistsSoFar, event) => {
-            performances = event.performance;
-            artistsToAdd = performances.map((performance) => {
+            const performances = event.performance;
+            const artistsToAdd = performances.map((performance) => {
                 return performance.artist;
             });
             return artistsSoFar.concat(artistsToAdd);
@@ -37,15 +36,15 @@ class PlaylistCreator {
         return this.userSpotifyAPI.searchArtists(artist.displayName)
         .then(data => {
             // extract the spotify ID from the first result
-            console.log(data);
             return data.body.artists.items[0].id
         }).catch(err => {
             console.log("couldn't get artist spotify ID", err);
         });
     }
 
-    getArtistsSpotifyIDs(artists) {
-        return artists.map(getArtistSpotifyID(artist));
+    getAllArtistsSpotifyIDs(artists) {
+        return Promise.all(artists.map((artist) => 
+            this.getArtistSpotifyID(artist)));
     }
 
     // get the spotify URIs of each artist's top tracks
@@ -58,10 +57,15 @@ class PlaylistCreator {
         });
     }
 
+    getAllArtistsTopTrackURIs(artistIDs) {
+        return Promise.all(artistIDs.map((artistID) => 
+            this.getArtistTopTrackURIs(artistID)));
+    }
+
     createUserAppPlaylist() {
         // it's also possible that this should be programmatically generated to include something identifying the user
         // something like "Coming To You Live" (but I don't know how I'd identify the user)
-        let playlistTitle = "is there a goddess of http requests"
+        let playlistTitle = "I pray a lot for an agnostic"
         let playlistID;
         return appSpotifyAPI.ensureAccessToken("createPlaylist", [ "f7g1xafjiium3d86aeul8q8il", playlistTitle ])
         .then(data => {
@@ -80,7 +84,7 @@ class PlaylistCreator {
         }).then(() => {
             console.log('trying to update the database...');
             // we also need to update the user's playlistID in the database
-            SpotifyUser.findOneAndUpdate(
+            return SpotifyUser.findOneAndUpdate(
                 { spotifyID: this.user.spotifyID }, 
                 { $set: { playlistID } })
         }).then(() => {
@@ -101,8 +105,13 @@ class PlaylistCreator {
     }
 
     // figure out which tracks you're gonna add to playlist
-    compileAllArtistsTopTracksForPlaylist(topTracks) {
-
+    compileAllArtistsTopTracksForPlaylist(topTrackLists) {
+        // maybe to start with just take the top three tracks from 
+        // each list?
+        return topTrackLists.reduce((tracksSoFar, trackList) => {
+            const tracksToAdd = trackList.slice(0, 3);
+            return tracksSoFar.concat(tracksToAdd);
+        }, []);
     }
 
     // add the resulting list of tracks to the playlist
@@ -120,6 +129,27 @@ class PlaylistCreator {
     }
 
     // do all the above steps in one function
+    async createLivePlaylist(eventsSearchQuery) {
+        try {
+            const eventSearchResults = await getUpcomingEvents(eventsSearchQuery);
+            const events = eventSearchResults.resultsPage.results.event;
+            if (!events) {
+                console.log("no events to create a playlist from");
+                return;
+            }
+            // this is me trimming the list of artists
+            // so we don't hit the spotify api rate limits
+            const artists = this.getArtistsFromEvents(events).slice(0, 3);
+            const artistIDs = await this.getAllArtistsSpotifyIDs(artists);
+            const topTrackLists = await this.getAllArtistsTopTrackURIs(artistIDs);
+            const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
+            const playlistID = await this.findOrCreateUserAppPlaylist();
+            this.updatePlaylist(playlistID, tracks);
+            return playlistID;
+        } catch (err) {
+            console.log("something went wrong creating the Live Playlist", err);
+        }
+    }
 
     // save a copy of the playlist to the user's account
     saveCopyOfPlaylist(playlistID) {

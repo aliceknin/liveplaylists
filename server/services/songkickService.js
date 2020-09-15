@@ -1,0 +1,45 @@
+const axios = require('axios');
+
+/*
+Songkick API request URLs
+
+Location search:
+    https://api.songkick.com/api/3.0/search/locations.json?query={search_query}&apikey={your_api_key}
+Metro Area Calendar search:
+    https://api.songkick.com/api/3.0/metro_areas/{metro_area_id}/calendar.json?apikey={your_api_key}
+*/
+
+const songkickAxios = axios.create({ baseURL: 'https://api.songkick.com/api/3.0/' });
+
+async function searchForLocation(query) {
+    try {
+        const res = await songkickAxios.get('search/locations.json', {
+            params: {
+                ...query,
+                apikey: process.env.SONGKICK_API_KEY
+            }
+        })
+        return res.data;
+    } catch (err) {
+        console.log('something went wrong with the songkick api location search', err);
+    }
+}
+
+async function getUpcomingEvents(query) {
+    try {
+        if (!query || !query.metroID) {
+            throw new Error("can't get events without a metroID");
+        }
+        const res = await songkickAxios.get(`metro_areas/${query.metroID}/calendar.json`, {
+            params: {
+                ...query,
+                apikey: process.env.SONGKICK_API_KEY
+            }
+        })
+        return res.data;
+    } catch (err) {
+        console.log('something went wrong with the songkick api event search', err);
+    }
+}
+
+module.exports = { searchForLocation, getUpcomingEvents };

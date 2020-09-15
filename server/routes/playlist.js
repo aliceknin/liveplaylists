@@ -1,42 +1,36 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
+const { searchForLocation } = require('../services/songkickService');
+const PlaylistCreator = require('../playlists/createPlaylist');
 
-SONGKICK_API_URL = 'https://api.songkick.com/api/3.0/'; 
 // do something to make sure the user is authenticated when performing playlist functions
 
-/*
-Songkick API request URLs
-
-Location search:
-    https://api.songkick.com/api/3.0/search/locations.json?query={search_query}&apikey={your_api_key}
-Metro Area Calendar search:
-    https://api.songkick.com/api/3.0/metro_areas/{metro_area_id}/calendar.json?apikey={your_api_key}
-*/
-
-router.get('/location', (req, res) => {
+router.get('/location', async (req, res) => {
     // search for the metro area the user wants to find upcoming concerts from which to create a playlist
-    if (!req.query) {
-        console.log("can't search without a query");
-        res.status(400).send("400 Bad Request: can't search without a query");
-    } else {
-        axios.get(SONGKICK_API_URL + 'search/locations.json', {
-            params: {
-                ...req.query,
-                apikey: process.env.SONGKICK_API_KEY
-            }
-        }).then(apiRes => {
-            res.send(apiRes.data);
-            console.log("you tried to search for %O", req.query);
-        }).catch(err => {
-            console.log('something went wrong with the songkick api location search', err);
-        });
+    try {
+        if (!req.query) {
+            console.log("can't search without a query");
+            res.status(400).send("400 Bad Request: can't search without a query");
+        }
+        const data = await searchForLocation(req.query);
+        res.send(data);
+        console.log("you tried to search for %O", req.query);
+    } catch (err) {
+        console.log('something went wrong with the location search', err);
     }
 });
 
-router.post('/create', (req, res) => {
+router.get('/create', async (req, res) => {
     // create playlist from params on the app spotify account
-    console.debug('testing out this debug thing');
+    try {
+        console.log("attempting to create a playlist for user", req.user);
+        const pc = new PlaylistCreator(req.user, req.session.access);
+        const data = await pc.createLivePlaylist(req.query);
+        res.send(data);
+        console.log("finished creating playlist");
+    } catch (err) {
+        console.log("couldn't create playlist", err);
+    }
 });
 
 router.post('/save', (req, res) => {
