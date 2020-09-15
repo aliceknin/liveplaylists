@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ReactModal from 'react-modal';
 import "../styles/Modal.scss";
 import '../styles/SavePlaylistModal.scss';
@@ -10,6 +10,8 @@ const SavePlaylistModal = (props) => {
     const [description, setDescription] = useState("");
     const [type, setType] = useState("public");
 
+    const descriptionInput = useRef(null);
+
     function handleTitleChange(evt) {
         setTitle(evt.target.value);
     }
@@ -20,6 +22,29 @@ const SavePlaylistModal = (props) => {
 
     function handleTypeChange(evt) {
         setType(evt.target.value);
+    }
+
+    function handleEnter(evt, el) {
+        if (evt.key === 'Enter') {
+            switch (el) {
+                case "title":
+                    evt.preventDefault();
+                    descriptionInput.current.focus();
+                    break;
+                case "public":
+                case "private":
+                case "collab":
+                    evt.preventDefault();
+                    setType(el);
+                    break;
+                case "cancel":
+                    evt.preventDefault();
+                    props.onHide();
+                    break;
+                default:
+                    return;
+            }
+        }
     }
 
   async function handleSubmit(evt) {
@@ -59,17 +84,23 @@ const SavePlaylistModal = (props) => {
                 <input aria-label="Title"
                     placeholder="Title"
                     value={title}
-                    onChange={handleTitleChange}/>
-                <textarea aria-label="Description"
+                    onChange={handleTitleChange}
+                    onKeyPress={(e) => handleEnter(e, "title")}/>
+                <textarea ref={descriptionInput}
+                    aria-label="Description"
                     placeholder="Description"
                     value={description}
                     onChange={handleDescriptionChange}/>
                 <RadioButtons options={options} 
                     checkedValue={type}
-                    onChange={handleTypeChange}/>
+                    onChange={handleTypeChange}
+                    onEnter={handleEnter}/>
                 <i className="fas fa-info-circle"></i>
                 <div className="buttons-container">
-                    <button className="button-light" onClick={props.onHide}>Cancel</button>
+                    <button type="button"
+                            className="button-light" 
+                            onClick={props.onHide}
+                            onKeyPress={(e) => handleEnter(e, "cancel")}>Cancel</button>
                     <button type="submit">Save Playlist</button>
                 </div>
             </form>

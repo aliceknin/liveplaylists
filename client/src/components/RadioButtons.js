@@ -10,7 +10,8 @@ const RadioButtons = (props) => {
                                         name={option.value} 
                                         value={option.value} 
                                         checked={props.checkedValue === option.value} 
-                                        onChange={props.onChange}/>
+                                        onChange={props.onChange}
+                                        onKeyPress={(e) => props.onEnter(e, option.value)}/>
                     <label htmlFor={option.value}>{option.displayName}</label>
                 </div>
             )}
