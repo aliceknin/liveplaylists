@@ -42,11 +42,10 @@ class UserSpotifyAPI extends SpotifyWebAPI {
     // token fails. is this ideal? should we handle some of these?
     async ensureAccessToken(funcName, args) {
         try { // await converts synchronous calls to a resolved promise, so this will always return a promise
-            console.log('trying your function...');
             return await this[funcName](...args);
         } catch(err) {
             if (err.statusCode === 401) {
-                console.log("couldn't authenticate");
+                console.log("couldn't authenticate when trying to", funcName);
                 return this.tryWithNewAccessToken(funcName, args);
             } else {
                 // let the original caller handle non-auth errors
@@ -64,7 +63,7 @@ class UserSpotifyAPI extends SpotifyWebAPI {
             console.log("requesting new access token");
             const data = await this.refreshAccessToken();
             this.setAccessToken(data.body['access_token']);
-            console.log('set new access token:', data.body['access_token']);
+            console.log('set new access token');
             console.log('trying your function again');
             return await this[funcName](...args);
         } catch (err) {

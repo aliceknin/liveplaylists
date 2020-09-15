@@ -33,7 +33,8 @@ class PlaylistCreator {
 
     // search spotify for each artist to find their spotify id
     getArtistSpotifyID(artist) {
-        return this.userSpotifyAPI.searchArtists(artist.displayName)
+        return this.userSpotifyAPI.ensureAccessToken(
+            'searchArtists', [artist.displayName])
         .then(data => {
             // extract the spotify ID from the first result
             if (!data.body.artists.items[0]) {
@@ -56,7 +57,8 @@ class PlaylistCreator {
         if (!artistID) {
             return [];
         }
-        return this.userSpotifyAPI.getArtistTopTracks(artistID, 'from_token')
+        return this.userSpotifyAPI.ensureAccessToken(
+        'getArtistTopTracks', [artistID, 'from_token'])
         .then(data => {
             return data.body.tracks.map(track => track.uri);
         }).catch(err => {
@@ -74,15 +76,16 @@ class PlaylistCreator {
         // something like "Coming To You Live" (but I don't know how I'd identify the user)
         let playlistTitle = "I pray a lot for an agnostic"
         let playlistID;
-        return appSpotifyAPI.ensureAccessToken("createPlaylist", [ "f7g1xafjiium3d86aeul8q8il", playlistTitle ])
+        return appSpotifyAPI.ensureAccessToken(
+        'createPlaylist', ['f7g1xafjiium3d86aeul8q8il', playlistTitle])
         .then(data => {
             console.log("we tried to create a playlist");
             playlistID = data.body.id 
             return data.body.id;
         }).then(playlistID => {
             console.log('trying to follow the playlist...');
-            return this.userSpotifyAPI.followPlaylist(playlistID, 
-                {'public' : false});
+            return this.userSpotifyAPI.ensureAccessToken(
+            'followPlaylist', [playlistID, {'public' : false}]);
         }).then(() => {
             // we want to allow the user to modify this themselves
             console.log('trying to make the playlist collaborative...'); 
@@ -123,10 +126,9 @@ class PlaylistCreator {
 
     // add the resulting list of tracks to the playlist
     updatePlaylist(playlistID, tracks) {
-        return appSpotifyAPI.ensureAccessToken('replaceTracksInPlaylist', [
-            playlistID,
-            tracks
-        ]).then(() => {
+        return appSpotifyAPI.ensureAccessToken(
+            'replaceTracksInPlaylist', [playlistID, tracks]
+        ).then(() => {
             console.log("added tracks!");
         }).catch(err => {
             console.log(err);
@@ -161,8 +163,9 @@ class PlaylistCreator {
         let tracks;
         let newPlaylistID;
         let userSpotifyID = this.user.spotifyID;
-        return this.userSpotifyAPI.getPlaylist(playlistID, 
-            { fields: "name,description,tracks.items(track(uri))" })
+        return this.userSpotifyAPI.ensureAccessToken(
+            'getPlaylist', [playlistID, 
+            { fields: "name,description,tracks.items(track(uri))" }])
         .then(data => {
             name = name || data.body.name;
             description = description || data.body.description;
