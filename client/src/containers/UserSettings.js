@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import {Link} from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
 import UserProvider from '../contexts/UserProvider';
+import SpotifyEmbed from '../components/SpotifyEmbed';
 
 const UserSettings = () => {
     const user = useContext(UserProvider.context);
@@ -19,6 +20,8 @@ const UserSettings = () => {
                     <ul>
                         <li>Name: {user.name}</li>
                         <li>Spotify ID: {user.spotifyID}</li>
+                        {user.playlistID && 
+                        <SpotifyEmbed playlistID={user.playlistID}/>}
                     </ul>
                     <button onClick={user.logout}>
                         Log Out

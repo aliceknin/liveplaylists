@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import '../styles/PlaylistParameters.scss';
 import LocationSearch from './LocationSearch';
 import axios from 'axios';
+import LoginModal from './LoginModal';
+import UserProvider from '../contexts/UserProvider';
+import isEmpty from 'lodash.isempty';
+import AlertModal from './AlertModal';
 
 const PlaylistParameters = (props) => {
+    const user = useContext(UserProvider.context);
     const [location, setLocation] = useState({});
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
 
     async function handleSubmit() {
         switch (props.buttonText) {
@@ -21,6 +29,14 @@ const PlaylistParameters = (props) => {
     }
 
     async function createPlaylistFromParameters() {
+        if (isEmpty(user)) {
+            setShowLoginModal(true);
+            return;
+        } if (isEmpty(location)){
+            setAlertMessage("Try searching for a city first.");
+            setShowAlert(true);
+            return;
+        }
         try {
             console.log("creating playlist from upcoming events in", location);
             const res = await axios.get('/playlist/create', {
@@ -32,6 +48,12 @@ const PlaylistParameters = (props) => {
             console.log("created playlist!", playlistID);
             props.receivePlaylist(playlistID);
         } catch (err) {
+            if (err.response.status === 404) {
+                setAlertMessage(`We couldn't find any upcoming events` +
+                ` in ${location.displayName}. Try somewhere else?`);
+                setShowAlert(true);
+                setLocation({});
+            }
             console.log("couldn't create playlist from parameters", err);
         }
     }
@@ -48,6 +70,12 @@ const PlaylistParameters = (props) => {
                 <LocationSearch setLocation={setLocation}/>
             </div>
             <button onClick={handleSubmit}>{props.buttonText}</button>
+            <LoginModal isOpen={showLoginModal} 
+                        onHide={()=> setShowLoginModal(false)}/>
+            <AlertModal isOpen={showAlert}
+                        onHide={() => setShowAlert(false)}
+                        label="Alert"
+                        message={alertMessage}/>
         </div>
     );
 }

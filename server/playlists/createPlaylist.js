@@ -143,8 +143,9 @@ class PlaylistCreator {
             const eventSearchResults = await getUpcomingEvents(eventsSearchQuery);
             const events = eventSearchResults.resultsPage.results.event;
             if (!events) {
-                console.log("no events to create a playlist from");
-                return;
+                const e = new Error("no events to create a playlist from");
+                e.name=("EmptyResultsError");
+                throw e;
             }
             // this is me trimming the list of artists
             // so we don't hit the spotify api rate limits
@@ -157,7 +158,11 @@ class PlaylistCreator {
             await this.updatePlaylist(playlistID, tracks);
             return playlistID;
         } catch (err) {
-            console.log("something went wrong creating the Live Playlist", err);
+            if (err.name === "EmptyResultsError") {
+                throw err;
+            } else {
+                console.log("something went wrong creating the Live Playlist", err);
+            }
         }
     }
 

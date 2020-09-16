@@ -38,6 +38,9 @@ router.get('/create', async (req, res) => {
             console.log("finished creating playlist");
         }
     } catch (err) {
+        if (err.name === "EmptyResultsError") {
+            res.status(404).send("no events to create a playlist from");
+        }
         console.log("couldn't create playlist", err);
     }
 });
