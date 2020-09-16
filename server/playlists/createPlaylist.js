@@ -118,10 +118,12 @@ class PlaylistCreator {
     compileAllArtistsTopTracksForPlaylist(topTrackLists) {
         // maybe to start with just take the top three tracks from 
         // each list?
-        return topTrackLists.reduce((tracksSoFar, trackList) => {
+        const tracks = topTrackLists.reduce((tracksSoFar, trackList) => {
             const tracksToAdd = trackList.slice(0, 3);
             return tracksSoFar.concat(tracksToAdd);
         }, []);
+        const uniqueTracks = Array.from(new Set(tracks));
+        return uniqueTracks;
     }
 
     // add the resulting list of tracks to the playlist
@@ -148,7 +150,8 @@ class PlaylistCreator {
             // so we don't hit the spotify api rate limits
             const artists = this.getArtistsFromEvents(events).slice(0, 3);
             const artistIDs = await this.getAllArtistsSpotifyIDs(artists);
-            const topTrackLists = await this.getAllArtistsTopTrackURIs(artistIDs);
+            const uniqueArtistIDs = Array.from(new Set(artistIDs));
+            const topTrackLists = await this.getAllArtistsTopTrackURIs(uniqueArtistIDs);
             const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
             const playlistID = await this.findOrCreateUserAppPlaylist();
             await this.updatePlaylist(playlistID, tracks);
