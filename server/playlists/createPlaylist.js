@@ -134,6 +134,14 @@ class PlaylistCreator {
         return uniqueTracks;
     }
 
+    compileEventsForPlaylist(events) {
+        events = events.filter(event => event.status === 'ok');
+        // this is me trimming the search results
+        // so we don't hit the spotify api rate limits
+        events = events.slice(0, Constants.INITIAL_EVENTS_PER_PLAYLIST);
+        return events;
+    }
+
     compileEventDescriptions(eventDescriptions) {
         return eventDescriptions.join(" | ");
     }
@@ -169,11 +177,9 @@ class PlaylistCreator {
                 console.log("no events to create a playlist from");
                 return "no events";
             }
-            // this is me trimming the search results
-            // so we don't hit the spotify api rate limits
-            const trimmedEvents = events.slice(0, Constants.INITIAL_EVENTS_PER_PLAYLIST);
+            const compiledEvents = this.compileEventsForPlaylist(events);
             const [artists, eventDescriptions] = 
-                this.getArtistsAndDescriptionsFromEvents(trimmedEvents);
+                this.getArtistsAndDescriptionsFromEvents(compiledEvents);
             const playlistDescription = this.compileEventDescriptions(eventDescriptions);
             const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
             const artistIDs = await this.getAllArtistsSpotifyIDs(artists);
