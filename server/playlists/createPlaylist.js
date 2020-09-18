@@ -1,6 +1,7 @@
 const { appSpotifyAPI, UserSpotifyAPI } = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
+const Constants = require('../config/constants');
 
 /*
 This is a sketch of all the functions I think I'll need to 
@@ -72,12 +73,11 @@ class PlaylistCreator {
     }
 
     createUserAppPlaylist() {
-        // it's also possible that this should be programmatically generated to include something identifying the user
+        // it's also possible that the playlist title should be programmatically generated to include something identifying the user
         // something like "Coming To You Live" (but I don't know how I'd identify the user)
-        let playlistTitle = "I pray a lot for an agnostic"
         let playlistID;
         return appSpotifyAPI.ensureAccessToken(
-        'createPlaylist', ['f7g1xafjiium3d86aeul8q8il', playlistTitle])
+        'createPlaylist', [Constants.APP_SPOTIFY_ID, Constants.PLAYLIST_TITLE])
         .then(data => {
             console.log("we tried to create a playlist");
             playlistID = data.body.id 
@@ -119,7 +119,7 @@ class PlaylistCreator {
         // maybe to start with just take the top three tracks from 
         // each list?
         const tracks = topTrackLists.reduce((tracksSoFar, trackList) => {
-            const tracksToAdd = trackList.slice(0, 3);
+            const tracksToAdd = trackList.slice(0, Constants.TRACKS_PER_ATRIST);
             return tracksSoFar.concat(tracksToAdd);
         }, []);
         const uniqueTracks = Array.from(new Set(tracks));
@@ -143,13 +143,13 @@ class PlaylistCreator {
             const eventSearchResults = await getUpcomingEvents(eventsSearchQuery);
             const events = eventSearchResults.resultsPage.results.event;
             if (!events) {
-                const e = new Error("no events to create a playlist from");
-                e.name=("EmptyResultsError");
-                throw e;
+                console.log("no events to create a playlist from");
+                return "no events";
             }
             // this is me trimming the list of artists
             // so we don't hit the spotify api rate limits
-            const artists = this.getArtistsFromEvents(events).slice(0, 3);
+            const artists = this.getArtistsFromEvents(events)
+                .slice(0, Constants.INITIAL_ARTISTS_PER_PLAYLIST);
             const artistIDs = await this.getAllArtistsSpotifyIDs(artists);
             const uniqueArtistIDs = Array.from(new Set(artistIDs));
             const topTrackLists = await this.getAllArtistsTopTrackURIs(uniqueArtistIDs);
@@ -158,11 +158,7 @@ class PlaylistCreator {
             await this.updatePlaylist(playlistID, tracks);
             return playlistID;
         } catch (err) {
-            if (err.name === "EmptyResultsError") {
-                throw err;
-            } else {
-                console.log("something went wrong creating the Live Playlist", err);
-            }
+            console.log("something went wrong creating the Live Playlist", err);
         }
     }
 

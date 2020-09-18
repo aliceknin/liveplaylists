@@ -44,16 +44,17 @@ const PlaylistParameters = (props) => {
                     metroID: location.metroID
                 }
             });
-            let playlistID = res.data;
-            console.log("created playlist!", playlistID);
-            props.receivePlaylist(playlistID);
-        } catch (err) {
-            if (err.response.status === 404) {
+            if (res.data === "no events") {
                 setAlertMessage(`We couldn't find any upcoming events` +
                 ` in ${location.displayName}. Try somewhere else?`);
                 setShowAlert(true);
                 setLocation({});
+            } else {
+                let playlistID = res.data;
+                console.log("created playlist!", playlistID);
+                props.receivePlaylist(playlistID);
             }
+        } catch (err) {
             console.log("couldn't create playlist from parameters", err);
         }
     }
