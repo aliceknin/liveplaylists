@@ -39,18 +39,18 @@ class PlaylistCreator {
     }
 
     // search spotify for each artist to find their spotify id
-    getArtistSpotifyID(artist) {
-        return appSpotifyAPI.searchArtists(artist.displayName)
-        .then(data => {
-            // extract the spotify ID from the first result
+    async getArtistSpotifyID(artist) {
+        try {
+            const data = await appSpotifyAPI.searchArtists(artist.displayName);
             if (!data.body.artists.items[0]) {
                 console.log("no results for", artist.displayName);
                 return "";
             }
+            // extract the spotify ID from the first result
             return data.body.artists.items[0].id
-        }).catch(err => {
+        } catch (err) {
             console.log("couldn't get artist spotify ID", err);
-        });
+        }
     }
 
     getAllArtistsSpotifyIDs(artists) {
@@ -59,17 +59,17 @@ class PlaylistCreator {
     }
 
     // get the spotify URIs of each artist's top tracks
-    getArtistTopTrackURIs(artistID) {
+    async getArtistTopTrackURIs(artistID) {
         if (!artistID) {
             return [];
         }
-        return appSpotifyAPI.getArtistTopTracks(
-            artistID, 'from_token')
-        .then(data => {
+        try {
+            const data = await appSpotifyAPI.getArtistTopTracks(
+                artistID, 'from_token');
             return data.body.tracks.map(track => track.uri);
-        }).catch(err => {
+        } catch (err) {
             console.log("couldn't get artist top tracks", err);
-        });
+        }
     }
 
     getAllArtistsTopTrackURIs(artistIDs) {
@@ -77,36 +77,35 @@ class PlaylistCreator {
             this.getArtistTopTrackURIs(artistID)));
     }
 
-    createUserAppPlaylist(description) {
+    async createUserAppPlaylist(description) {
         // it's also possible that the playlist title should be programmatically generated to include something identifying the user
         // something like "Coming To You Live" (but I don't know how I'd identify the user)
-        let playlistID;
         description = description || '';
-        // we want to allow the user to modify this themselves
-        return appSpotifyAPI.ensureAccessToken(
-        'createPlaylist', [Constants.APP_SPOTIFY_ID, 
-            Constants.PLAYLIST_TITLE,
-            { description, public: false, collaborative: true }])
-        .then(data => {
+        try {
+            // we want to allow the user to modify this themselves
+            const data = await appSpotifyAPI.ensureAccessToken(
+                'createPlaylist', [
+                    Constants.APP_SPOTIFY_ID, 
+                    Constants.PLAYLIST_TITLE,
+                    { description, public: false, collaborative: true }
+            ]);
             console.log("we tried to create a playlist");
-            playlistID = data.body.id 
-            return data.body.id;
-        }).then(playlistID => {
+            const playlistID = data.body.id;
+
             console.log('trying to follow the playlist...');
-            return this.userSpotifyAPI.ensureAccessToken(
-            'followPlaylist', [playlistID, {'public' : false}]);
-        }).then(() => {
-            console.log('trying to update the database...');
+            await this.userSpotifyAPI.ensureAccessToken(
+                'followPlaylist', [playlistID, {'public' : false}]);
+            
             // we also need to update the user's playlistID in the database
-            return SpotifyUser.findOneAndUpdate(
-                { spotifyID: this.user.spotifyID }, 
-                { $set: { playlistID } })
-        }).then(() => {
+            console.log('trying to update the database...');
+            await SpotifyUser.findOneAndUpdate(
+                    { spotifyID: this.user.spotifyID }, 
+                    { $set: { playlistID } });
             console.log('successfully created and followed a new app playlist!');
             return playlistID;
-        }).catch(err => {
+        } catch (err) {
             console.log("something went wrong while trying to create a playlist", err);
-        }); 
+        } 
     }
 
     // find or create playlist to modify (returns the playlist ID)
@@ -149,23 +148,24 @@ class PlaylistCreator {
     async updatePlaylistDescription(playlistID, description) {
         try {
             return await appSpotifyAPI.ensureAccessToken(
-                'changePlaylistDetails', [
-                playlistID, { description }
-            ]);
+                'changePlaylistDetails', 
+                [ playlistID, { description } ]);
         } catch (err) {
             console.log("couldn't update the description", err)
         }
     }
 
     // add the resulting list of tracks to the playlist
-    updatePlaylistTracks(playlistID, tracks) {
-        return appSpotifyAPI.ensureAccessToken(
-            'replaceTracksInPlaylist', [playlistID, tracks]
-        ).then(() => {
+    async updatePlaylistTracks(playlistID, tracks) {
+        try {
+            const data = await appSpotifyAPI.ensureAccessToken(
+                'replaceTracksInPlaylist', 
+                [ playlistID, tracks ]);
             console.log("added tracks!");
-        }).catch(err => {
+            return data;
+        } catch (err) {
             console.log(err);
-        });
+        };
     }
 
     // do all the above steps in one function
@@ -194,31 +194,29 @@ class PlaylistCreator {
     }
 
     // save a copy of the playlist to the user's account
-    saveCopyOfPlaylist(playlistID, name, description) {
-        let tracks;
-        let newPlaylistID;
+    async saveCopyOfPlaylist(playlistID, name, description) {
         let userSpotifyID = this.user.spotifyID;
-        return this.userSpotifyAPI.ensureAccessToken(
-            'getPlaylist', [playlistID, 
-            { fields: "name,description,tracks.items(track(uri))" }])
-        .then(data => {
-            name = name || data.body.name;
-            description = description || data.body.description;
-            tracks = data.body.tracks.items
-                     .map(trackItem => trackItem.track.uri);
-            return { name, description, tracks };
-        }).then(() => {
-            return this.userSpotifyAPI.createPlaylist(userSpotifyID, name, { description })
-        }).then(data => {
-            newPlaylistID = data.body.id;
+        try {
+            const oldPlaylistData = await this.userSpotifyAPI.ensureAccessToken(
+                'getPlaylist', [playlistID, 
+                { fields: "name,description,tracks.items(track(uri))" }]);
+
+            name = name || oldPlaylistData.body.name;
+            description = description || oldPlaylistData.body.description;
+            const tracks = oldPlaylistData.body.tracks.items
+                .map(trackItem => trackItem.track.uri);
+
+            const newPlaylistData = await this.userSpotifyAPI.createPlaylist(
+                userSpotifyID, name, { description });
+            const newPlaylistID = newPlaylistData.body.id;
             console.log("new playlist:", newPlaylistID);
-            return this.userSpotifyAPI.replaceTracksInPlaylist(newPlaylistID, tracks)
-        }).then(() => {
+            
+            await this.userSpotifyAPI.replaceTracksInPlaylist(newPlaylistID, tracks)
             console.log("we saved a copy of this playlist to your account!");
             return newPlaylistID;
-        }).catch(err => {
+        } catch (err) {
             console.log("something went wrong when trying to save a copy of this playlist", err);
-        });
+        }
     }
 
 }

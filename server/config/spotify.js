@@ -1,5 +1,6 @@
 const SpotifyWebAPI = require('spotify-web-api-node');
 const SpotifyUser = require('../models/spotifyUser');
+const constants = require('./constants');
 
 /**
  * Wrapper for the SpotifyWebAPI with the app client creds;
@@ -73,17 +74,20 @@ class UserSpotifyAPI extends SpotifyWebAPI {
         }
     }
 
-    setRefreshTokenFromDB() {
+    async setRefreshTokenFromDB() {
         console.log("requesting refresh token from db");
         // for some reason our decryption hook doesn't run when 
         // we use 'select', so we gotta get the whole document
-        return SpotifyUser.findOne({_id: this.user._id})
-        .then(data => {
+        try {
+            const data = await SpotifyUser.findOne({_id: this.user._id});
             const refreshToken = data.refreshToken;
             this.setRefreshToken(refreshToken);
             console.log("set refresh token: ", refreshToken)
-        }) // maybe we want the error to bubble up?
-        // .catch(err => console.log(err));
+        } catch (err) {
+            // console.log(err)
+            // maybe we want the error to bubble up?
+            throw err;
+        }
     }
 }
 
