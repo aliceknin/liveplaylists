@@ -57,7 +57,8 @@ router.get('/save', async (req, res) => {
             const playlistCopyID = await pc.saveCopyOfPlaylist(
                 req.query.playlistID,
                 req.query.name,
-                req.query.description
+                req.query.description,
+                req.query.type
                 );
             res.send(playlistCopyID);
             console.log("finished saving playlist");

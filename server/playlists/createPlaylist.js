@@ -223,8 +223,20 @@ class PlaylistCreator {
         }
     }
 
+    getPlaylistType(type) {
+        switch (type) {
+            case "private":
+                return { public: false };
+            case "collab":
+                return { public: false, collaborative: true };
+            case "public":
+            default: 
+                return { public: true };
+        }
+    }
+
     // save a copy of the playlist to the user's account
-    async saveCopyOfPlaylist(playlistID, name, description) {
+    async saveCopyOfPlaylist(playlistID, name, description, type) {
         let userSpotifyID = this.user.spotifyID;
         try {
             const oldPlaylistData = await this.userSpotifyAPI.ensureAccessToken(
@@ -233,11 +245,12 @@ class PlaylistCreator {
 
             name = name || oldPlaylistData.body.name;
             description = description || oldPlaylistData.body.description;
+            type = this.getPlaylistType(type);
             const tracks = oldPlaylistData.body.tracks.items
                 .map(trackItem => trackItem.track.uri);
 
             const newPlaylistData = await this.userSpotifyAPI.createPlaylist(
-                userSpotifyID, name, { description });
+                userSpotifyID, name, { description, ...type });
             const newPlaylistID = newPlaylistData.body.id;
             console.log("new playlist:", newPlaylistID);
             

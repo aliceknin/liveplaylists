@@ -55,7 +55,8 @@ const SavePlaylistModal = (props) => {
                 params: {
                     playlistID: props.playlistID,
                     name: title,
-                    description: description
+                    description: description,
+                    type: type
                 }
             })
             let playlistCopyID = res.data;
