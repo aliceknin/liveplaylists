@@ -19,31 +19,29 @@ class PlaylistCreator {
     }
 
     // reduce upcoming events to a list of artist objects
-    getArtistsAndDescriptionsFromEvents(events) {
+    getArtistsFromEvents(events) {
         if (!events || events.length === 0) {
             return;
         }
-        return events.reduce((artistsAndEventsSoFar, event) => {
-            const [artistsSoFar, eventsSoFar] = artistsAndEventsSoFar;
+        return events.reduce((artistsSoFar, event) => {
             const performances = event.performance;
             const artistsToAdd = performances.map((performance) => {
-                return performance.artist;
+                return {
+                    displayName: performance.artist.displayName,
+                    eventID: event.id
+                }
             });
-            eventsSoFar.push(this.getEventDescription(event));
-            return [ artistsSoFar.concat(artistsToAdd), eventsSoFar ]
-        }, [[], []]);
-    }
-
-    getEventDescription(event) {
-        return event.displayName;
+            return artistsSoFar.concat(artistsToAdd);
+        }, []);
     }
 
     // search spotify for each artist to find their spotify id
-    async getArtistSpotifyID(artist) {
+    async getArtistSpotifyID(artistDisplayName) {
         try {
-            const data = await appSpotifyAPI.searchArtists(artist.displayName);
+            const data = await appSpotifyAPI.ensureAccessToken(
+                'searchArtists', [artistDisplayName]);
             if (!data.body.artists.items[0]) {
-                console.log("no results for", artist.displayName);
+                console.log("no results for", artistDisplayName);
                 return "";
             }
             // extract the spotify ID from the first result
@@ -53,9 +51,28 @@ class PlaylistCreator {
         }
     }
 
-    getAllArtistsSpotifyIDs(artists) {
-        return Promise.all(artists.map((artist) => 
-            this.getArtistSpotifyID(artist)));
+    async getAllArtistsSpotifyIDs(artists) {
+        try {
+            const addArtistID = async (artist) => {
+                artist.spotifyID = await this.getArtistSpotifyID(
+                    artist.displayName);
+                return artist;
+            }
+            // to make sure we don't try to ensureAccessToken 
+            // multiple times at once, do one call first, then 
+            // the rest, then put the list back together
+            const firstArtistWithID = await addArtistID(artists[0]);
+            const restOfArtistsWithIDs = await Promise.all(
+                artists.slice(1).map(addArtistID)
+            ); // order doesn't really matter
+            restOfArtistsWithIDs.push(firstArtistWithID);
+            const artistsWithIDs = restOfArtistsWithIDs;
+
+            // return only the ones that have a spotifyID
+            return artistsWithIDs.filter(artist => artist.spotifyID);
+        } catch (err) {
+            console.log("something went wrong getting all the artist ids", err);
+        }
     }
 
     // get the spotify URIs of each artist's top tracks
@@ -73,7 +90,8 @@ class PlaylistCreator {
     }
 
     getAllArtistsTopTrackURIs(artistIDs) {
-        return Promise.all(artistIDs.map((artistID) => 
+        const uniqueArtistIDs = Array.from(new Set(artistIDs));
+        return Promise.all(uniqueArtistIDs.map((artistID) => 
             this.getArtistTopTrackURIs(artistID)));
     }
 
@@ -141,7 +159,12 @@ class PlaylistCreator {
         return events;
     }
 
-    compileEventDescriptions(eventDescriptions) {
+    getEventDescription(event) {
+        return event.displayName;
+    }
+
+    compileEventDescriptions(events) {
+        const eventDescriptions = events.map(this.getEventDescription);
         return eventDescriptions.join(" | ");
     }
 
@@ -177,15 +200,22 @@ class PlaylistCreator {
                 console.log("no events to create a playlist from");
                 return "no events";
             }
+            // get only the events we want to use for the playlist
             const compiledEvents = this.compileEventsForPlaylist(events);
-            const [artists, eventDescriptions] = 
-                this.getArtistsAndDescriptionsFromEvents(compiledEvents);
-            const playlistDescription = this.compileEventDescriptions(eventDescriptions);
-            const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
-            const artistIDs = await this.getAllArtistsSpotifyIDs(artists);
-            const uniqueArtistIDs = Array.from(new Set(artistIDs));
-            const topTrackLists = await this.getAllArtistsTopTrackURIs(uniqueArtistIDs);
+            // get list of objects with artist display names and their event ids
+            const artistsWithEvents = this.getArtistsFromEvents(compiledEvents);
+            // add spotify ids to objects, or drop them from the list 
+            const artistsWithIDs = await this.getAllArtistsSpotifyIDs(artistsWithEvents);
+            // make the tracklist from the spotify artists
+            const artistIDs = artistsWithIDs.map(artist => artist.spotifyID);
+            const topTrackLists = await this.getAllArtistsTopTrackURIs(artistIDs);
             const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
+            // make the description from the artists in the playlist
+            const eventIDs = new Set(artistsWithIDs.map(artist => artist.eventID));
+            const eventsForDescription = compiledEvents.filter(event => eventIDs.has(event.id));
+            const playlistDescription = this.compileEventDescriptions(eventsForDescription);
+            // create the final playlist
+            const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
             await this.updatePlaylistTracks(playlistID, tracks);
             return playlistID;
         } catch (err) {

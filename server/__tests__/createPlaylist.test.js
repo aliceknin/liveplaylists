@@ -109,12 +109,11 @@ test("should get a flat list of artist objects from a list of events", () => {
     let pc = new PlaylistCreator(user);
 
     let artists = ["Alice", "Bob", "Carol", "Donovan", "Eddy", "Fantasia", "Gwendolyn", "Heath"];
-    let descriptions = ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"];
-    let [artistsFromEvents, descriptionsFromEvents] = 
-        pc.getArtistsAndDescriptionsFromEvents(events);
+    // let descriptions = ["Event 1", "Event 2", "Event 3", "Event 4", "Event 5", "Event 6"];
+    let artistsFromEvents = pc.getArtistsFromEvents(events);
 
     expect(artistsFromEvents.map(artist => artist.displayName)).toEqual(artists);
-    expect(descriptionsFromEvents).toEqual(descriptions);
+    // expect(descriptionsFromEvents).toEqual(descriptions);
 
     let compiledEventNames = ["Event 1", "Event 4", "Event 5"];
     let compiledEvents = pc.compileEventsForPlaylist(events);
