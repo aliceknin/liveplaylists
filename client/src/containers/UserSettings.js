@@ -20,9 +20,9 @@ const UserSettings = () => {
                     <ul>
                         <li>Name: {user.name}</li>
                         <li>Spotify ID: {user.spotifyID}</li>
-                        {user.playlistID && 
-                        <SpotifyEmbed playlistID={user.playlistID}/>}
                     </ul>
+                    {user.playlistID &&
+                    <SpotifyEmbed playlistID={user.playlistID}/>}
                     <button onClick={user.logout}>
                         Log Out
                     </button>
