@@ -3,12 +3,6 @@ const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
 const Constants = require('../config/constants');
 
-/*
-This is a sketch of all the functions I think I'll need to 
-create a playlist. It is possible they should all return 
-promises (or at least the ones that make api calls should).
-*/ 
-
 class PlaylistCreator {
     constructor(user, access) {
         if (!user)  {
@@ -89,10 +83,28 @@ class PlaylistCreator {
         }
     }
 
-    getAllArtistsTopTrackURIs(artistIDs) {
-        const uniqueArtistIDs = Array.from(new Set(artistIDs));
-        return Promise.all(uniqueArtistIDs.map((artistID) => 
-            this.getArtistTopTrackURIs(artistID)));
+    async getAllArtistsTopTrackURIs(artistsWithIDs) {
+        const artistIDs = artistsWithIDs.map(artist => artist.spotifyID);
+        const artistIDSet = new Set(artistIDs);
+        const uniqueArtistIDs = Array.from(artistIDSet);
+        let foundTracklessArtist = false;
+        
+        const topTrackLists = await Promise.all(uniqueArtistIDs.map(
+            async (artistID) => {
+                const topTracks = await this.getArtistTopTrackURIs(artistID);
+                if (topTracks.length === 0) {
+                    foundTracklessArtist = true;
+                    artistIDSet.delete(artistID);
+                    console.log("no tracks for artist with ID", artistID);
+                }
+                return topTracks;
+            }));
+
+        const artistsWithTracks = foundTracklessArtist ? 
+            artistsWithIDs.filter(artist => artistIDSet.has(artist.spotifyID)) : 
+            artistsWithIDs;
+
+        return [topTrackLists, artistsWithTracks];
     }
 
     async createUserAppPlaylist(description) {
@@ -187,7 +199,7 @@ class PlaylistCreator {
             console.log("added tracks!");
             return data;
         } catch (err) {
-            console.log(err);
+            console.log("couldn't update playlist tracks", err);
         };
     }
 
@@ -207,11 +219,11 @@ class PlaylistCreator {
             // add spotify ids to objects, or drop them from the list 
             const artistsWithIDs = await this.getAllArtistsSpotifyIDs(artistsWithEvents);
             // make the tracklist from the spotify artists
-            const artistIDs = artistsWithIDs.map(artist => artist.spotifyID);
-            const topTrackLists = await this.getAllArtistsTopTrackURIs(artistIDs);
+            const [topTrackLists, artistsWithTracks] = 
+                await this.getAllArtistsTopTrackURIs(artistsWithIDs);
             const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
-            // make the description from the artists in the playlist
-            const eventIDs = new Set(artistsWithIDs.map(artist => artist.eventID));
+            // make the description from the artists that have tracks in the playlist
+            const eventIDs = new Set(artistsWithTracks.map(artist => artist.eventID));
             const eventsForDescription = compiledEvents.filter(event => eventIDs.has(event.id));
             const playlistDescription = this.compileEventDescriptions(eventsForDescription);
             // create the final playlist
