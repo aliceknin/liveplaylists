@@ -1,0 +1,20 @@
+@import './variables.scss';
+
+.btn-loading {
+    color: hsl(0,0,60%);
+    position: relative;
+
+    &:hover {
+        cursor: default;
+        background-color: $button-color;
+    }
+}
+
+.loading {
+    position: absolute;
+    margin: 0;
+    bottom: 3px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}

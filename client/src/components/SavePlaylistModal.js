@@ -1,14 +1,16 @@
 import React, { useState, useRef } from 'react';
 import ReactModal from 'react-modal';
-import "../styles/Modal.scss";
+import '../styles/Modal.scss';
 import '../styles/SavePlaylistModal.scss';
 import RadioButtons from './RadioButtons';
+import LoadingButton from './LoadingButton';
 import axios from 'axios';
 
 const SavePlaylistModal = (props) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [type, setType] = useState("public");
+    const [loading, setLoading] = useState(false);
 
     const descriptionInput = useRef(null);
 
@@ -50,6 +52,7 @@ const SavePlaylistModal = (props) => {
   async function handleSubmit(evt) {
         evt.preventDefault();
         try {
+            setLoading(true);
             console.log("saving playlist", props.playlistID);
             const res = await axios.get('/playlist/save', {
                 params: {
@@ -60,11 +63,13 @@ const SavePlaylistModal = (props) => {
                 }
             })
             let playlistCopyID = res.data;
-            console.log("saved copy of playist!", playlistCopyID)
+            console.log("saved copy of playlist!", playlistCopyID)
             props.onHide();
             return playlistCopyID;
         } catch (err) {
             console.log("couldn't save copy of playlist", err);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -102,7 +107,7 @@ const SavePlaylistModal = (props) => {
                             className="button-light" 
                             onClick={props.onHide}
                             onKeyPress={(e) => handleEnter(e, "cancel")}>Cancel</button>
-                    <button type="submit">Save Playlist</button>
+                    <LoadingButton type="submit" loading={loading}>Save Playlist</LoadingButton>
                 </div>
             </form>
         </ReactModal>

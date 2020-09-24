@@ -1,3 +1,5 @@
+@import './styles/variables.scss';
+
 .inner {
   margin: 0 auto;
   width: 80%;
@@ -21,8 +23,6 @@ input:not([type=radio]), textarea {
   }
 
 }
-
-$button-color: hsl(0, 0, 87%);
 
 button {
   text-transform: uppercase;
@@ -49,5 +49,34 @@ button {
       &.button-callout {
         box-shadow: 0 5px 20px -5px hsl(0%, 0%, 20%);
       }
+  }
+}
+
+.loading {
+  span {
+    display: inline-block;
+    font-size: 1.5em;
+    margin-left: .1em;
+    animation: .8s ease-in-out infinite alternate both bounce;
+    &:nth-child(2) {
+        animation-delay: .2s;
+    }
+    &:last-child {
+        animation-delay: .4s;
+    }
+  }
+}
+
+@keyframes bounce {
+  0% {
+      transform: translateY(0);
+  }
+  50% {
+      transform: translateY(0);
+  }
+
+  100% {
+      
+      transform: translateY(-.15em);
   }
 }

@@ -6,6 +6,7 @@ import LoginModal from './LoginModal';
 import UserProvider from '../contexts/UserProvider';
 import isEmpty from 'lodash.isempty';
 import AlertModal from './AlertModal';
+import LoadingButton from './LoadingButton';
 
 const PlaylistParameters = (props) => {
     const user = useContext(UserProvider.context);
@@ -13,6 +14,7 @@ const PlaylistParameters = (props) => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     async function handleSubmit() {
         switch (props.buttonText) {
@@ -38,6 +40,7 @@ const PlaylistParameters = (props) => {
             return;
         }
         try {
+            setLoading(true);
             console.log("creating playlist from upcoming events in", location);
             const res = await axios.get('/playlist/create', {
                 params: {
@@ -48,7 +51,6 @@ const PlaylistParameters = (props) => {
                 setAlertMessage(`We couldn't find any upcoming events` +
                 ` in ${location.displayName}. Try somewhere else?`);
                 setShowAlert(true);
-                setLocation({});
             } else {
                 let playlistID = res.data;
                 console.log("created playlist!", playlistID);
@@ -56,6 +58,8 @@ const PlaylistParameters = (props) => {
             }
         } catch (err) {
             console.log("couldn't create playlist from parameters", err);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -70,7 +74,9 @@ const PlaylistParameters = (props) => {
             <div className="container">
                 <LocationSearch setLocation={setLocation}/>
             </div>
-            <button onClick={handleSubmit}>{props.buttonText}</button>
+            <LoadingButton onClick={handleSubmit} loading={loading}>
+                    {props.buttonText}
+            </LoadingButton>
             <LoginModal isOpen={showLoginModal} 
                         onHide={()=> setShowLoginModal(false)}/>
             <AlertModal isOpen={showAlert}
