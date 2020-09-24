@@ -3,13 +3,13 @@ import '../styles/PlaylistParameters.scss';
 import LocationSearch from './LocationSearch';
 import axios from 'axios';
 import LoginModal from './LoginModal';
-import UserProvider from '../contexts/UserProvider';
+import UserContext from '../contexts/UserContext';
 import isEmpty from 'lodash.isempty';
 import AlertModal from './AlertModal';
 import LoadingButton from './LoadingButton';
 
 const PlaylistParameters = (props) => {
-    const user = useContext(UserProvider.context);
+    const { user, refreshUser } = useContext(UserContext);
     const [location, setLocation] = useState({});
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -56,6 +56,7 @@ const PlaylistParameters = (props) => {
             } else {
                 playlistID = res.data;
                 console.log("created playlist!", playlistID);
+                if (!user.playlistID) refreshUser();
             }
         } catch (err) {
             console.log("couldn't create playlist from parameters", err);

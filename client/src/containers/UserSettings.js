@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
 import {Link} from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
-import UserProvider from '../contexts/UserProvider';
+import UserContext from '../contexts/UserContext';
 import SpotifyEmbed from '../components/SpotifyEmbed';
 
 const UserSettings = () => {
-    const user = useContext(UserProvider.context);
+    const { user } = useContext(UserContext);
 
     return (
         <div className="user-settings">

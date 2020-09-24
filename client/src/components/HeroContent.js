@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
-import UserProvider from '../contexts/UserProvider';
+import UserContext from '../contexts/UserContext';
 import isEmpty from 'lodash.isempty';
 
 const HeroContent = () => {
-    const user = useContext(UserProvider.context);
+    const { user } = useContext(UserContext);
     return (
         <>
         <h1>Live Playlists</h1>
