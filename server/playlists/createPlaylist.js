@@ -191,13 +191,24 @@ class PlaylistCreator {
     }
 
     // add the resulting list of tracks to the playlist
+    // spotify only allows you to replace/add 100 tracks at a time
     async updatePlaylistTracks(playlistID, tracks) {
         try {
-            const data = await appSpotifyAPI.ensureAccessToken(
-                'replaceTracksInPlaylist', 
-                [ playlistID, tracks ]);
-            console.log("added tracks!");
-            return data;
+            for (let i = 0; i < tracks.length; i += 100) {
+                let trimmedTracks = tracks.slice(i, i + 100);
+                if (i === 0) {
+                    await appSpotifyAPI.ensureAccessToken(
+                        'replaceTracksInPlaylist', 
+                        [ playlistID, trimmedTracks ]);
+                        console.log("added tracks!");
+                }
+                else {
+                    await appSpotifyAPI.addTracksToPlaylist(
+                        playlistID, trimmedTracks
+                    );
+                    console.log("added even more tracks!");
+                }
+            }
         } catch (err) {
             console.log("couldn't update playlist tracks", err);
         };
