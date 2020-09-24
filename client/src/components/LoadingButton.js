@@ -3,13 +3,8 @@ import '../styles/LoadingButton.scss';
 
 const LoadingButton = (props) => {
 
-    function handleClick(e) {
-        if (props.loading) return;
-        props.onClick(e);
-    }
-
     return (
-        <button onClick={handleClick}
+        <button onClick={props.onClick}
                 className={props.loading ? 'btn-loading' : ''}
                 type={props.type}>
             {props.children}

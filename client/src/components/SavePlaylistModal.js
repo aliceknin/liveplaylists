@@ -50,6 +50,7 @@ const SavePlaylistModal = (props) => {
     }
 
   async function handleSubmit(evt) {
+        if (loading) return;
         evt.preventDefault();
         try {
             setLoading(true);
@@ -64,12 +65,12 @@ const SavePlaylistModal = (props) => {
             })
             let playlistCopyID = res.data;
             console.log("saved copy of playlist!", playlistCopyID)
-            props.onHide();
             return playlistCopyID;
         } catch (err) {
             console.log("couldn't save copy of playlist", err);
         } finally {
             setLoading(false);
+            props.onHide();
         }
     }
 

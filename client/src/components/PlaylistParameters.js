@@ -17,6 +17,7 @@ const PlaylistParameters = (props) => {
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit() {
+        if (loading) return;
         switch (props.buttonText) {
             case "Create Playlist":
                 await createPlaylistFromParameters();
@@ -39,6 +40,7 @@ const PlaylistParameters = (props) => {
             setShowAlert(true);
             return;
         }
+        let playlistID = '';
         try {
             setLoading(true);
             console.log("creating playlist from upcoming events in", location);
@@ -52,14 +54,14 @@ const PlaylistParameters = (props) => {
                 ` in ${location.displayName}. Try somewhere else?`);
                 setShowAlert(true);
             } else {
-                let playlistID = res.data;
+                playlistID = res.data;
                 console.log("created playlist!", playlistID);
-                props.receivePlaylist(playlistID);
             }
         } catch (err) {
             console.log("couldn't create playlist from parameters", err);
         } finally {
             setLoading(false);
+            props.receivePlaylist(playlistID);
         }
     }
 
