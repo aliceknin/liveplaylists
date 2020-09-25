@@ -30,6 +30,9 @@ async function getUpcomingEvents(query) {
         if (!query || !query.metroID) {
             throw new Error("can't get events without a metroID");
         }
+        const d = getDefaultDateRange();
+        query.min_date = query.min_date || d.min_date;
+        query.max_date = query.max_date || d.max_date;
         const res = await songkickAxios.get(`metro_areas/${query.metroID}/calendar.json`, {
             params: {
                 ...query,
@@ -39,6 +42,19 @@ async function getUpcomingEvents(query) {
         return res.data;
     } catch (err) {
         console.log('something went wrong with the songkick api event search', err);
+    }
+}
+
+function getDefaultDateRange() {
+    const today = new Date();
+    const max_day = new Date(
+        today.getFullYear() + 5, 
+        today.getMonth(), 
+        today.getDate()
+    );
+    return {
+        min_date: today.toISOString().substring(0, 10),
+        max_date: max_day.toISOString().substring(0, 10)
     }
 }
 
