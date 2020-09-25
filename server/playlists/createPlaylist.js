@@ -1,9 +1,14 @@
-const { appSpotifyAPI, UserSpotifyAPI } = require('../config/spotify');
+const UserSpotifyAPI = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
 const Constants = require('../config/constants');
 
 class PlaylistCreator {
+
+    // Spotify API wrapper instance with the app Spotify account's credentials
+    appSpotifyAPI = new UserSpotifyAPI()
+                    .setRefreshTokenAndReturn(process.env.APP_REFRESH_TOKEN);
+
     constructor(user, access) {
         if (!user)  {
             throw new Error("can't create playlists without a user");
@@ -32,7 +37,7 @@ class PlaylistCreator {
     // search spotify for each artist to find their spotify id
     async getArtistSpotifyID(artistDisplayName) {
         try {
-            const data = await appSpotifyAPI.ensureAccessToken(
+            const data = await this.appSpotifyAPI.ensureAccessToken(
                 'searchArtists', [artistDisplayName]);
             if (!data.body.artists.items[0]) {
                 console.log("no results for", artistDisplayName);
@@ -75,7 +80,7 @@ class PlaylistCreator {
             return [];
         }
         try {
-            const data = await appSpotifyAPI.getArtistTopTracks(
+            const data = await this.appSpotifyAPI.getArtistTopTracks(
                 artistID, 'from_token');
             return data.body.tracks.map(track => track.uri);
         } catch (err) {
@@ -113,7 +118,7 @@ class PlaylistCreator {
         description = description || '';
         try {
             // we want to allow the user to modify this themselves
-            const data = await appSpotifyAPI.ensureAccessToken(
+            const data = await this.appSpotifyAPI.ensureAccessToken(
                 'createPlaylist', [
                     Constants.APP_SPOTIFY_ID, 
                     Constants.PLAYLIST_TITLE,
@@ -182,7 +187,7 @@ class PlaylistCreator {
 
     async updatePlaylistDescription(playlistID, description) {
         try {
-            return await appSpotifyAPI.ensureAccessToken(
+            return await this.appSpotifyAPI.ensureAccessToken(
                 'changePlaylistDetails', 
                 [ playlistID, { description } ]);
         } catch (err) {
@@ -192,18 +197,18 @@ class PlaylistCreator {
 
     // add the resulting list of tracks to the playlist
     // spotify only allows you to replace/add 100 tracks at a time
-    async updatePlaylistTracks(playlistID, tracks) {
+    async updatePlaylistTracks(playlistID, tracks, spotifyAPI) {
         try {
             for (let i = 0; i < tracks.length; i += 100) {
                 let trimmedTracks = tracks.slice(i, i + 100);
                 if (i === 0) {
-                    await appSpotifyAPI.ensureAccessToken(
+                    await spotifyAPI.ensureAccessToken(
                         'replaceTracksInPlaylist', 
                         [ playlistID, trimmedTracks ]);
                         console.log("added tracks!");
                 }
                 else {
-                    await appSpotifyAPI.addTracksToPlaylist(
+                    await spotifyAPI.addTracksToPlaylist(
                         playlistID, trimmedTracks
                     );
                     console.log("added even more tracks!");
@@ -239,7 +244,7 @@ class PlaylistCreator {
             const playlistDescription = this.compileEventDescriptions(eventsForDescription);
             // create the final playlist
             const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
-            await this.updatePlaylistTracks(playlistID, tracks);
+            await this.updatePlaylistTracks(playlistID, tracks, this.appSpotifyAPI);
             return playlistID;
         } catch (err) {
             console.log("something went wrong creating the Live Playlist", err);
@@ -277,7 +282,7 @@ class PlaylistCreator {
             const newPlaylistID = newPlaylistData.body.id;
             console.log("new playlist:", newPlaylistID);
             
-            await this.userSpotifyAPI.replaceTracksInPlaylist(newPlaylistID, tracks)
+            await this.updatePlaylistTracks(newPlaylistID, tracks, this.userSpotifyAPI);
             console.log("we saved a copy of this playlist to your account!");
             return newPlaylistID;
         } catch (err) {

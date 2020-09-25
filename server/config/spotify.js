@@ -89,23 +89,11 @@ class UserSpotifyAPI extends SpotifyWebAPI {
             throw err;
         }
     }
+
+    setRefreshTokenAndReturn(refreshToken) {
+        this.setRefreshToken(refreshToken);
+        return this;
+    }
 }
 
-// Spotify API wrapper instance with the app Spotify account's credentials
-const appSpotifyAPI = new UserSpotifyAPI();
-
-// we've saved the refresh token for the app spotify account, which will 
-// allow us to create and modify playlists on the app spotify account
-// without having to manually authenticate. The refresh token is valid 
-// indefinitely, or until the user (the app spotify account) deauthorizes 
-// this app.
-
-// we read it here from an env variable so we don't necessarily have to 
-// get it from the database, but if we needed to, we could just use the
-// setRefreshTokenFromDB method.
-appSpotifyAPI.setRefreshToken(process.env.APP_REFRESH_TOKEN);
-
-// leave the access token unset for now; if we need to call a function that
-// needs access, we can just use the ensureAccessToken method.
-
-module.exports = { UserSpotifyAPI, appSpotifyAPI };
+module.exports = UserSpotifyAPI;
