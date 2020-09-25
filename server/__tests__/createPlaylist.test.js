@@ -1,4 +1,69 @@
 const PlaylistCreator = require("../playlists/createPlaylist");
+const UserSpotifyAPI = require('../config/spotify');
+
+jest.mock('../config/spotify');
+
+let user = {
+    name: 'Alice Nin',
+    spotifyID: '12140404407'
+}
+
+let pc = new PlaylistCreator(user);
+
+describe("adding tracks in batches of 100", () => {
+
+    const replaceTracks = UserSpotifyAPI.mockReplaceTracksInPlaylist
+    .mockImplementation((playlistID, tracks) => {
+        if (tracks.length <= 100) {
+            playlist = [];
+            playlist.push(...tracks);
+        } 
+    });
+
+    const addTracks = UserSpotifyAPI.mockAddTracksToPlaylist
+    .mockImplementation((playlistID, tracks) => {
+        if (tracks.length <= 100) {
+            playlist.push(...tracks);
+        } 
+    });
+
+    let playlist = [];
+    let playlistTracks;
+
+    afterEach(() => {
+        replaceTracks.mockClear();
+        addTracks.mockClear();
+        playlist = [];
+    });
+
+    it('should add short tracklists with one call to replaceTracks', async () => {
+        playlistTracks = ["here", "are", "some", "tracks"];
+
+        await pc.updatePlaylistTracks("dedoop", playlistTracks, pc.appSpotifyAPI);
+        expect(playlist).toEqual(playlistTracks);
+        expect(replaceTracks).toHaveBeenCalled();
+        expect(addTracks).not.toHaveBeenCalled();
+    });
+
+    it('should add trackslists of 100 with one call to replaceTracks', async () => {
+        playlistTracks = Array(100).fill(0);
+
+        await pc.updatePlaylistTracks("dedum", playlistTracks, pc.appSpotifyAPI);
+        expect(playlist).toEqual(playlistTracks);
+        expect(replaceTracks).toHaveBeenCalled();
+        expect(addTracks).not.toHaveBeenCalled();
+    });
+
+    it('should add tracklists over 100 with multiple calls', async () => {
+        playlistTracks = Array(253).fill("hi");
+
+        await pc.updatePlaylistTracks("dedee", playlistTracks, pc.appSpotifyAPI);
+        expect(playlist.length).toBe(253);
+        expect(replaceTracks).toHaveBeenCalledTimes(1);
+        expect(addTracks).toHaveBeenCalledTimes(2);
+    })
+
+}); 
 
 test("should get a flat list of artist objects from a list of events", () => {
     let events = [
