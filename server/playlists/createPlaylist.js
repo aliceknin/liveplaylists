@@ -17,6 +17,17 @@ class PlaylistCreator {
         this.userSpotifyAPI = new UserSpotifyAPI(access, user)
     }
 
+    filterEvents(events) {
+        return events.filter(event => event.status === 'ok');
+    }
+
+    splitEvents(events) {
+        const playlistEvents = 
+            events.slice(0, Constants.INITIAL_EVENTS_PER_PLAYLIST)
+        const rest = events.slice(Constants.INITIAL_EVENTS_PER_PLAYLIST);
+        return [playlistEvents, rest];
+    }
+
     // reduce upcoming events to a list of artist objects
     getArtistsFromEvents(events) {
         if (!events || events.length === 0) {
@@ -112,6 +123,39 @@ class PlaylistCreator {
         return [topTrackLists, artistsWithTracks];
     }
 
+    // figure out which tracks you're gonna add to playlist
+    compileAllArtistsTopTracksForPlaylist(topTrackLists) {
+        const tracks = topTrackLists.reduce((tracksSoFar, trackList) => {
+            const tracksToAdd = trackList.slice(0, Constants.TRACKS_PER_ARTIST);
+            return tracksSoFar.concat(tracksToAdd);
+        }, []);
+        const uniqueTracks = Array.from(new Set(tracks));
+        return uniqueTracks;
+    }
+
+    getEventDescription(event) {
+        return event.displayName;
+    }
+
+    compileEventDescriptions(events) {
+        // this is where I will eventually put logic to 
+        // merge event descriptions with the same artists
+        // but different days/times
+        // also it seems like there's a 512 character limit
+        const eventDescriptions = events.map(this.getEventDescription);
+        return eventDescriptions.join(" | ");
+    }
+
+    async updatePlaylistDescription(playlistID, description) {
+        try {
+            return await this.appSpotifyAPI.ensureAccessToken(
+                'changePlaylistDetails', 
+                [ playlistID, { description } ]);
+        } catch (err) {
+            console.log("couldn't update the description", err)
+        }
+    }
+
     async createUserAppPlaylist(description) {
         // it's also possible that the playlist title should be programmatically generated to include something identifying the user
         // something like "Coming To You Live" (but I don't know how I'd identify the user)
@@ -156,45 +200,6 @@ class PlaylistCreator {
         }
     }
 
-    // figure out which tracks you're gonna add to playlist
-    compileAllArtistsTopTracksForPlaylist(topTrackLists) {
-        // maybe to start with just take the top three tracks from 
-        // each list?
-        const tracks = topTrackLists.reduce((tracksSoFar, trackList) => {
-            const tracksToAdd = trackList.slice(0, Constants.TRACKS_PER_ATRIST);
-            return tracksSoFar.concat(tracksToAdd);
-        }, []);
-        const uniqueTracks = Array.from(new Set(tracks));
-        return uniqueTracks;
-    }
-
-    compileEventsForPlaylist(events) {
-        events = events.filter(event => event.status === 'ok');
-        // this is me trimming the search results
-        // so we don't hit the spotify api rate limits
-        events = events.slice(0, Constants.INITIAL_EVENTS_PER_PLAYLIST);
-        return events;
-    }
-
-    getEventDescription(event) {
-        return event.displayName;
-    }
-
-    compileEventDescriptions(events) {
-        const eventDescriptions = events.map(this.getEventDescription);
-        return eventDescriptions.join(" | ");
-    }
-
-    async updatePlaylistDescription(playlistID, description) {
-        try {
-            return await this.appSpotifyAPI.ensureAccessToken(
-                'changePlaylistDetails', 
-                [ playlistID, { description } ]);
-        } catch (err) {
-            console.log("couldn't update the description", err)
-        }
-    }
-
     // add the resulting list of tracks to the playlist
     // spotify only allows you to replace/add 100 tracks at a time
     async updatePlaylistTracks(playlistID, tracks, spotifyAPI) {
@@ -218,6 +223,39 @@ class PlaylistCreator {
             console.log("couldn't update playlist tracks", err);
         };
     }
+            // separate out the events we want to use for the playlist
+            // get list of objects with artist display names and their event ids
+            // add spotify ids to objects
+            // make the tracklist from the spotify artists,
+            // filter artists to only those we found tracks for
+
+    async collectTracks(events) {
+        let trackSet = new Set();
+        let artistList = [];
+        let eventList = [];
+        let eventsToAdd = this.filterEvents(events);
+        while(trackSet.size < Constants.MIN_TRACKS && eventsToAdd.length > 0) {
+            const [playlistEvents, rest] = this.splitEvents(eventsToAdd);
+            const artistsWithEvents = this.getArtistsFromEvents(playlistEvents);
+            const artistsWithIDs = await this.getAllArtistsSpotifyIDs(artistsWithEvents);
+            const [topTrackLists, artistsWithTracks] = 
+                await this.getAllArtistsTopTrackURIs(artistsWithIDs);
+            const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
+
+            tracks.forEach(track => trackSet.add(track));
+            artistList = artistList.concat(artistsWithTracks);
+            eventList = eventList.concat(playlistEvents);
+            eventsToAdd = rest;
+        }
+        const trackList = Array.from(trackSet);
+        return [trackList, artistList, eventList];
+    }
+
+    getPlaylistDescription(eventList, artistList) {
+        const eventIDs = new Set(artistList.map(artist => artist.eventID));
+        const eventsForDescription = eventList.filter(event => eventIDs.has(event.id));
+        return this.compileEventDescriptions(eventsForDescription);
+    }
 
     // do all the above steps in one function
     async createLivePlaylist(eventsSearchQuery) {
@@ -228,23 +266,17 @@ class PlaylistCreator {
                 console.log("no events to create a playlist from");
                 return "no events";
             }
-            // get only the events we want to use for the playlist
-            const compiledEvents = this.compileEventsForPlaylist(events);
-            // get list of objects with artist display names and their event ids
-            const artistsWithEvents = this.getArtistsFromEvents(compiledEvents);
-            // add spotify ids to objects, or drop them from the list 
-            const artistsWithIDs = await this.getAllArtistsSpotifyIDs(artistsWithEvents);
-            // make the tracklist from the spotify artists
-            const [topTrackLists, artistsWithTracks] = 
-                await this.getAllArtistsTopTrackURIs(artistsWithIDs);
-            const tracks = this.compileAllArtistsTopTracksForPlaylist(topTrackLists);
+
+            // get a tracklist, those tracks' artists, and the events from which the tracklist was created
+            const [trackList, artistList, eventList] = await this.collectTracks(events);
+            
             // make the description from the artists that have tracks in the playlist
-            const eventIDs = new Set(artistsWithTracks.map(artist => artist.eventID));
-            const eventsForDescription = compiledEvents.filter(event => eventIDs.has(event.id));
-            const playlistDescription = this.compileEventDescriptions(eventsForDescription);
+            const playlistDescription = this.getPlaylistDescription(eventList, artistList);
+
             // create the final playlist
             const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
-            await this.updatePlaylistTracks(playlistID, tracks, this.appSpotifyAPI);
+            await this.updatePlaylistTracks(playlistID, trackList, this.appSpotifyAPI);
+
             return playlistID;
         } catch (err) {
             console.log("something went wrong creating the Live Playlist", err);
