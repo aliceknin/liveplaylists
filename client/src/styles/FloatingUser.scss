@@ -53,6 +53,20 @@
             color:hsl(0,0,80%);
         }
 
+        li.not-you {
+            padding: 0;
+            border-top: solid 1px hsl(0,0,45%);
+            background-color: hsl(0,0,35%);
+            font-size: .7em;
+
+            a {
+                display: inline-block;
+                box-sizing: border-box;;
+                padding: .5em;
+                width: 100%;
+            }
+        }
+
         li:hover {
             background-color: hsl(0,0,30%);
             color: #fff;

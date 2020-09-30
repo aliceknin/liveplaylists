@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const { SCOPES } = require('../config/constants');
 
 function removeRefreshToken(reqUser) {
     let frontEndUser = { ...reqUser };
@@ -10,14 +11,7 @@ function removeRefreshToken(reqUser) {
 }
 
 router.get('/spotify', passport.authenticate('spotify', {
-    scope: [
-        'user-read-private',
-        'playlist-read-collaborative',
-        'playlist-modify-public',
-        'playlist-read-private',
-        'playlist-modify-private'
-    ],
-    // showDialog: true
+    scope: SCOPES
 }));
 
 router.get('/spotify/callback',
@@ -51,5 +45,10 @@ router.get('/logout', (req, res) => {
     console.log("req.user: %O", req.user);
     console.log('req.session: %O', req.session);
 });
+
+router.get('/switch_user', passport.authenticate('spotify', {
+    scope: SCOPES,
+    showDialog: true
+}));
 
 module.exports = router;
