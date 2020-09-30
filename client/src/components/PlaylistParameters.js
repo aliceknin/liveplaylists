@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import useStateWithSessionStorage from '../hooks/useStateWithSessionStorage';
 import '../styles/PlaylistParameters.scss';
 import LocationSearch from './LocationSearch';
 import axios from 'axios';
@@ -10,7 +11,7 @@ import LoadingButton from './LoadingButton';
 
 const PlaylistParameters = (props) => {
     const { user, refreshUser } = useContext(UserContext);
-    const [location, setLocation] = useState({});
+    const [location, setLocation] = useStateWithSessionStorage('location', {});
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
@@ -75,7 +76,7 @@ const PlaylistParameters = (props) => {
     return (
         <div className="playlist-parameters">
             <div className="container">
-                <LocationSearch setLocation={setLocation}/>
+                <LocationSearch location={location} setLocation={setLocation}/>
             </div>
             <LoadingButton onClick={handleSubmit} loading={loading}>
                     {props.buttonText}

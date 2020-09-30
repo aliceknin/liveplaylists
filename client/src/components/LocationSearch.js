@@ -5,7 +5,7 @@ import Axios from 'axios';
 import UseMyLocation from './UseMyLocation';
 
 const LocationSearch = (props) => {
-    const [ query, setQuery ] = useState("");
+    const [ query, setQuery ] = useState(props.location.displayName || "");
     const [ showResults, setShowResults ] = useState(false);
     const [ locations, setLocations ] = useState([]);
     const [ page, setPage ] = useState(1);
