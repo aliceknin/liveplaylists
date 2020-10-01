@@ -1,8 +1,11 @@
 import React from 'react';
+import { locationDisplayName } from '../utils/LocationUtils';
 
 const ResultsListItem = (props) => {
     return (
-        <li onClick={props.onClick}>{props.value}</li>
+        <li value={props.location.metroArea.id}>
+            {locationDisplayName(props.location)}
+        </li>
     );
 }
 

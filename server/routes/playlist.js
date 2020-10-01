@@ -1,46 +1,71 @@
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
+const { searchForLocation } = require('../services/songkickService');
+const PlaylistCreator = require('../playlists/createPlaylist');
 
-SONGKICK_API_URL = 'https://api.songkick.com/api/3.0/'; 
 // do something to make sure the user is authenticated when performing playlist functions
 
-/*
-Songkick API request URLs
-
-Location search:
-    https://api.songkick.com/api/3.0/search/locations.json?query={search_query}&apikey={your_api_key}
-Metro Area Calendar search:
-    https://api.songkick.com/api/3.0/metro_areas/{metro_area_id}/calendar.json?apikey={your_api_key}
-*/
-
-router.get('/location', (req, res) => {
+router.get('/location', async (req, res) => {
     // search for the metro area the user wants to find upcoming concerts from which to create a playlist
-    if (!req.query) {
-        console.log("can't search without a query");
-        res.status(400).send("400 Bad Request: can't search without a query");
-    } else {
-        axios.get(SONGKICK_API_URL + 'search/locations.json', {
-            params: {
-                ...req.query,
-                apikey: process.env.SONGKICK_API_KEY
-            }
-        }).then(apiRes => {
-            res.send(apiRes.data);
-            console.log("you tried to search for %O", req.query);
-        }).catch(err => {
-            console.log('something went wrong with the songkick api location search', err);
-        });
+    try {
+        if (!req.query) {
+            console.log("can't search without a query");
+            res.status(400).send("400 Bad Request: can't search without a query");
+            return;
+        }
+        const data = await searchForLocation(req.query);
+        res.send(data);
+        console.log("you tried to search for %O", req.query);
+    } catch (err) {
+        console.log('something went wrong with the location search', err);
     }
 });
 
-router.post('/create', (req, res) => {
+router.get('/create', async (req, res) => {
     // create playlist from params on the app spotify account
-    console.debug('testing out this debug thing');
+    try {
+        if (!req.user) {
+            console.log("please log in to create playlist");
+            res.status(401).send("Please log create a playlist.")
+        } else if (!req.query || !req.query.metroID) {
+            console.log("need metroID to create playlist from area events");
+            res.status(400).send("need metroID to create playlist from area events");
+        } else {
+            console.log("attempting to create a playlist");
+            const pc = new PlaylistCreator(req.user, req.session.access);
+            const createdPlaylistID = await pc.createLivePlaylist(req.query);
+            res.send(createdPlaylistID);
+            console.log("finished creating playlist");
+        }
+    } catch (err) {
+        console.log("couldn't create playlist", err);
+    }
 });
 
-router.post('/save', (req, res) => {
+router.get('/save', async (req, res) => {
     // save a copy of the given playlist to the logged in user's spotify account
+    try {
+        if (!req.user) {
+            console.log("please log in to save playlist");
+            res.status(401).send("Please log in save this playlist.")
+        } else if (!req.query || !req.query.playlistID) {
+            console.log("need playlistID to save copy of playlist");
+            res.status(400).send("need playlistID to save copy of playlist");
+        } else {
+            console.log("attempting to save a playlist");
+            const pc = new PlaylistCreator(req.user, req.session.access);
+            const playlistCopyID = await pc.saveCopyOfPlaylist(
+                req.query.playlistID,
+                req.query.name,
+                req.query.description,
+                req.query.type
+                );
+            res.send(playlistCopyID);
+            console.log("finished saving playlist");
+        }
+    } catch (err) {
+        console.log("couldn't save playlist", err);
+    }
 });
 
 router.post('/auto-creation-params', (req, res) => {

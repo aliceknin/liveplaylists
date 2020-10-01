@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { UserSpotifyAPI } = require('../config/spotify');
+const UserSpotifyAPI = require('../config/spotify');
 
 router.get('/user/profile', (req, res) => {
     console.log('we made it to the server');

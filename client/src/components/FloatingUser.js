@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import isEmpty from 'lodash.isempty';
-import UserProvider from '../contexts/UserProvider';
+import UserContext from '../contexts/UserContext';
 import '../styles/FloatingUser.scss';
 import userImage from "../images/user.svg";
 import guestImage from "../images/guest.svg";
 import UserMenuOptions from './UserMenuOptions';
 
 function FloatingUser(props) {
-    const user = useContext(UserProvider.context);
+    const { user } = useContext(UserContext);
     const [ showMenu, setShowMenu ] = useState(false);
 
     return (

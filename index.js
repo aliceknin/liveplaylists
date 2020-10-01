@@ -47,13 +47,21 @@ app.use('/spotify', require('./server/routes/spotify'));
 // heroku sets NODE_ENV to "production" by default, 
 // so this kicks in when deployed there
 if (process.env.NODE_ENV === "production") {
+    // make heroku redirect from http to https
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else{
+            next();
+        }
+    });
     app.use(express.static(path.join(__dirname, 'client/build')));
     app.get('/*', (req, res) => {
         res.sendFile(path.join(__dirname, 'client/build/index.html'))
     });
     // heroku uses https, so this will make passport use 
     // https during spotify auth
-    app.enable('trust proxy') ;
+    app.enable('trust proxy');
 } else {
     app.get('/', (req, res) => {
         res.send("yo");

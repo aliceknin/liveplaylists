@@ -1,4 +1,4 @@
-const { UserSpotifyAPI } = require('../config/spotify');
+const UserSpotifyAPI = require('../config/spotify');
 
 let userSpotifyAPI;
 

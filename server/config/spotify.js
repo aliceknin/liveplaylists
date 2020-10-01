@@ -1,5 +1,6 @@
 const SpotifyWebAPI = require('spotify-web-api-node');
 const SpotifyUser = require('../models/spotifyUser');
+const constants = require('./constants');
 
 /**
  * Wrapper for the SpotifyWebAPI with the app client creds;
@@ -42,11 +43,10 @@ class UserSpotifyAPI extends SpotifyWebAPI {
     // token fails. is this ideal? should we handle some of these?
     async ensureAccessToken(funcName, args) {
         try { // await converts synchronous calls to a resolved promise, so this will always return a promise
-            console.log('trying your function...');
             return await this[funcName](...args);
         } catch(err) {
             if (err.statusCode === 401) {
-                console.log("couldn't authenticate");
+                console.log("couldn't authenticate when trying to", funcName);
                 return this.tryWithNewAccessToken(funcName, args);
             } else {
                 // let the original caller handle non-auth errors
@@ -64,7 +64,7 @@ class UserSpotifyAPI extends SpotifyWebAPI {
             console.log("requesting new access token");
             const data = await this.refreshAccessToken();
             this.setAccessToken(data.body['access_token']);
-            console.log('set new access token:', data.body['access_token']);
+            console.log('set new access token');
             console.log('trying your function again');
             return await this[funcName](...args);
         } catch (err) {
@@ -74,35 +74,26 @@ class UserSpotifyAPI extends SpotifyWebAPI {
         }
     }
 
-    setRefreshTokenFromDB() {
+    async setRefreshTokenFromDB() {
         console.log("requesting refresh token from db");
         // for some reason our decryption hook doesn't run when 
         // we use 'select', so we gotta get the whole document
-        return SpotifyUser.findOne({_id: this.user._id})
-        .then(data => {
+        try {
+            const data = await SpotifyUser.findOne({_id: this.user._id});
             const refreshToken = data.refreshToken;
             this.setRefreshToken(refreshToken);
             console.log("set refresh token: ", refreshToken)
-        }) // maybe we want the error to bubble up?
-        // .catch(err => console.log(err));
+        } catch (err) {
+            // console.log(err)
+            // maybe we want the error to bubble up?
+            throw err;
+        }
+    }
+
+    setRefreshTokenAndReturn(refreshToken) {
+        this.setRefreshToken(refreshToken);
+        return this;
     }
 }
 
-// Spotify API wrapper instance with the app Spotify account's credentials
-const appSpotifyAPI = new UserSpotifyAPI();
-
-// we've saved the refresh token for the app spotify account, which will 
-// allow us to create and modify playlists on the app spotify account
-// without having to manually authenticate. The refresh token is valid 
-// indefinitely, or until the user (the app spotify account) deauthorizes 
-// this app.
-
-// we read it here from an env variable so we don't necessarily have to 
-// get it from the database, but if we needed to, we could just use the
-// setRefreshTokenFromDB method.
-appSpotifyAPI.setRefreshToken(process.env.APP_REFRESH_TOKEN);
-
-// leave the access token unset for now; if we need to call a function that
-// needs access, we can just use the ensureAccessToken method.
-
-module.exports = { UserSpotifyAPI, appSpotifyAPI };
+module.exports = UserSpotifyAPI;

@@ -1,14 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import useStateWithSessionStorage from '../hooks/useStateWithSessionStorage';
 import '../styles/PlaylistParameters.scss';
 import LocationSearch from './LocationSearch';
+import axios from 'axios';
+import LoginModal from './LoginModal';
+import UserContext from '../contexts/UserContext';
+import isEmpty from 'lodash.isempty';
+import AlertModal from './AlertModal';
+import LoadingButton from './LoadingButton';
 
 const PlaylistParameters = (props) => {
-    const [location, setLocation] = useState({});
+    const { user, refreshUser } = useContext(UserContext);
+    const [location, setLocation] = useStateWithSessionStorage('location', {});
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    function handleSubmit() {
+    async function handleSubmit() {
+        if (loading) return;
         switch (props.buttonText) {
             case "Create Playlist":
-                createPlaylistFromParameters();
+                await createPlaylistFromParameters();
                 break;
             case "Save Playlist Parameters":
                 savePlaylistParameters();
@@ -19,12 +32,39 @@ const PlaylistParameters = (props) => {
         }
     }
 
-    function createPlaylistFromParameters() {
-        // create playlist with spotify and bandsintown APIs
-        // (which will probably be separated out into multiple 
-        // separate methods when I figure out what I'm doing)
-        console.log("creating playlist from upcoming events in", location);
-        props.receivePlaylist("7GOJYqyQqCUz4fyfvHb13L");
+    async function createPlaylistFromParameters() {
+        if (isEmpty(user)) {
+            setShowLoginModal(true);
+            return;
+        } if (isEmpty(location)){
+            setAlertMessage("Try searching for a city first.");
+            setShowAlert(true);
+            return;
+        }
+        let playlistID = '';
+        try {
+            setLoading(true);
+            console.log("creating playlist from upcoming events in", location);
+            const res = await axios.get('/playlist/create', {
+                params: {
+                    metroID: location.metroID
+                }
+            });
+            if (res.data === "no events") {
+                setAlertMessage(`We couldn't find any upcoming events` +
+                ` in ${location.displayName}. Try somewhere else?`);
+                setShowAlert(true);
+            } else {
+                playlistID = res.data;
+                console.log("created playlist!", playlistID);
+                if (!user.playlistID) refreshUser();
+            }
+        } catch (err) {
+            console.log("couldn't create playlist from parameters", err);
+        } finally {
+            setLoading(false);
+            props.receivePlaylist(playlistID);
+        }
     }
 
     function savePlaylistParameters() {
@@ -36,9 +76,17 @@ const PlaylistParameters = (props) => {
     return (
         <div className="playlist-parameters">
             <div className="container">
-                <LocationSearch setLocation={setLocation}/>
+                <LocationSearch location={location} setLocation={setLocation}/>
             </div>
-            <button onClick={handleSubmit}>{props.buttonText}</button>
+            <LoadingButton onClick={handleSubmit} loading={loading}>
+                    {props.buttonText}
+            </LoadingButton>
+            <LoginModal isOpen={showLoginModal} 
+                        onHide={()=> setShowLoginModal(false)}/>
+            <AlertModal isOpen={showAlert}
+                        onHide={() => setShowAlert(false)}
+                        label="Alert"
+                        message={alertMessage}/>
         </div>
     );
 }

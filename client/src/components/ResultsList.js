@@ -1,5 +1,5 @@
 import React from 'react';
-import { locationDisplayName } from '../utils/LocationUtils';
+import ResultsListItem from './ResultsListItem';
 
 const ResultsList = (props) => {
 
@@ -9,17 +9,22 @@ const ResultsList = (props) => {
 
     return (
         props.show &&
+        ((props.locations.length > 0) ?
         <ul className="results-list"
             onClick={props.onClick}>
             {props.locations.map((location) => 
-            <li key={getKey(location)}
-                value={location.metroArea.id}>
-                {locationDisplayName(location)}
-            </li>)}
+            <ResultsListItem key={getKey(location)}
+                             location={location}/>)}
             {props.shouldShowMore && 
             <li onClick={props.showMore}
-                className="show-more">Show More</li>}
+                className="show-more"
+                key="showMore">Show More</li>}
         </ul>
+        : 
+        <div className="no-results">
+            We couldn't find anything for "{props.query}".<br/>
+            Try a new search?
+        </div>)
     );
 }
 

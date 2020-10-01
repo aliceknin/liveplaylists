@@ -5,7 +5,7 @@ import Axios from 'axios';
 import UseMyLocation from './UseMyLocation';
 
 const LocationSearch = (props) => {
-    const [ query, setQuery ] = useState("");
+    const [ query, setQuery ] = useState(props.location.displayName || "");
     const [ showResults, setShowResults ] = useState(false);
     const [ locations, setLocations ] = useState([]);
     const [ page, setPage ] = useState(1);
@@ -13,12 +13,14 @@ const LocationSearch = (props) => {
 
     function handleSearchChange(event) {
         setQuery(event.target.value);
+        if (showResults) setShowResults(false);
     }
 
     async function handleSearchSubmit(event) {
         event.preventDefault();
         let resultsPage = await searchForLocation(query);
-        setLocations(resultsPage.results.location);
+        setLocations(resultsPage.results.location ? 
+                     resultsPage.results.location : []);
         receivedNewLocations(resultsPage);
     }
 
@@ -75,6 +77,7 @@ const LocationSearch = (props) => {
                     onChange={handleSearchChange}
                     onSearch={handleSearchSubmit}/>
             <ResultsList show={showResults}
+                        query={query}
                         onClick={handleResultClick}
                         locations={locations}
                         shouldShowMore={showMore}

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import SavePlaylistModal from '../components/SavePlaylistModal';
 import PlaylistParameters from '../components/PlaylistParameters';
 import SpotifyEmbed from '../components/SpotifyEmbed';
+import useStateWithSessionStorage from '../hooks/useStateWithSessionStorage';
 
 const PlaylistContainer = () => {
-    const [playlistID, setPlaylistID] = useState("");
+    const [playlistID, setPlaylistID] = useStateWithSessionStorage('playlistID', '');
     const [saveModalOpen, setSaveModalOpen] = useState(false);
 
     return (
@@ -19,7 +20,8 @@ const PlaylistContainer = () => {
                     Save Playlist
                 </button>
             </div>
-            <SavePlaylistModal isOpen={saveModalOpen}
+            <SavePlaylistModal playlistID={playlistID}
+                isOpen={saveModalOpen}
                 onHide={() => setSaveModalOpen(false)}/>
             </>
             :

@@ -5,6 +5,7 @@ const SearchBar = (props) => {
         <form onSubmit={props.onSearch}>
             <div className="search-bar">
                 <input type="text"
+                    required
                     aria-label="Search for a city" 
                     placeholder="Search for a city"
                     value={props.value}
