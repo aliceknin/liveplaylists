@@ -2,6 +2,7 @@ const UserSpotifyAPI = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
 const Constants = require('../config/constants');
+const { joinWithCharLimit } = require('./utils');
 
 class PlaylistCreator {
 
@@ -138,12 +139,16 @@ class PlaylistCreator {
     }
 
     compileEventDescriptions(events) {
-        // this is where I will eventually put logic to 
-        // merge event descriptions with the same artists
-        // but different days/times
-        // also it seems like there's a 512 character limit
-        const eventDescriptions = events.map(this.getEventDescription);
-        return eventDescriptions.join(" | ");
+        const descriptions = events.map(this.getEventDescription);
+
+        // compile description while respecting the character limit
+        const characterLimit = 512;
+        const separator = ' | ';
+        const defaultDescription = Constants.APP_PLAYLIST_DESCRIPTION;
+        const playlistDescription = joinWithCharLimit(
+            characterLimit, descriptions, separator, defaultDescription);
+
+        return playlistDescription;
     }
 
     async updatePlaylistDescription(playlistID, description) {
