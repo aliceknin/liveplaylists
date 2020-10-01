@@ -1,11 +1,17 @@
 import React, { useContext } from 'react';
-import {Link} from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
 import UserContext from '../contexts/UserContext';
 import SpotifyEmbed from '../components/SpotifyEmbed';
 
 const UserSettings = () => {
     const { user } = useContext(UserContext);
+    const history = useHistory();
+
+    async function logout() {
+        const loggedOut = await user.logout();
+        if (loggedOut) history.push('/');
+    }
 
     return (
         <div className="user-settings">

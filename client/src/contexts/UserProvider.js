@@ -11,13 +11,14 @@ const UserProvider = ({children}) => {
         setRefreshUser(true);
     }
 
-    function logout() {
-        fetch('/auth/logout', {})
-        .then(response => {
-            if (response.status === 200) {
-                setUser(null);
-            }
-        });
+    async function logout() {
+        try {
+            await axios.get('/auth/logout');
+            setUser(null);
+            return true;
+        } catch (err) {
+            console.log("couldn't log out", err);
+        };
     }
 
     // when this component mounts, fetch the logged in user from the server
