@@ -3,6 +3,8 @@ const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
 const Constants = require('../config/constants');
 const { joinWithCharLimit } = require('./utils');
+const { getSpotifyIDFromWikiData } = require('../services/wikidataService');
+const { getSpotifyIDFromMusicBrainzRelURL } = require('../services/musicbrainzService');
 
 class PlaylistCreator {
 
@@ -39,6 +41,7 @@ class PlaylistCreator {
             const artistsToAdd = performances.map((performance) => {
                 return {
                     displayName: performance.artist.displayName,
+                    mbids: performance.artist.identifier,
                     eventID: event.id
                 }
             });
@@ -46,17 +49,33 @@ class PlaylistCreator {
         }, []);
     }
 
+    async getArtistSpotifyID(artist) {
+        let spotifyID;
+        if (artist.mbids[0]) {
+            const mbid = artist.mbids[0].mbid;
+            spotifyID = await getSpotifyIDFromWikiData(mbid);
+            if (!spotifyID) {
+                spotifyID = await getSpotifyIDFromMusicBrainzRelURL(mbid);
+            }
+        }
+        if (!spotifyID) {
+            spotifyID = await this.searchForArtistSpotifyID(artist.displayName);
+        }
+        return spotifyID;
+    }
+
     // search spotify for each artist to find their spotify id
-    async getArtistSpotifyID(artistDisplayName) {
+    async searchForArtistSpotifyID(artistDisplayName) {
         try {
-            const data = await this.appSpotifyAPI.ensureAccessToken(
-                'searchArtists', [artistDisplayName]);
+            const data = await this.appSpotifyAPI.searchArtists(artistDisplayName);
             if (!data.body.artists.items[0]) {
                 console.log("no results for", artistDisplayName);
                 return "";
             }
             // extract the spotify ID from the first result
-            return data.body.artists.items[0].id
+            let spotifyID = data.body.artists.items[0].id;
+            console.log("got spotifyID from Spotify:", spotifyID);
+            return spotifyID;
         } catch (err) {
             console.log("couldn't get artist spotify ID", err);
         }
@@ -64,21 +83,12 @@ class PlaylistCreator {
 
     async getAllArtistsSpotifyIDs(artists) {
         try {
-            const addArtistID = async (artist) => {
-                artist.spotifyID = await this.getArtistSpotifyID(
-                    artist.displayName);
-                return artist;
-            }
-            // to make sure we don't try to ensureAccessToken 
-            // multiple times at once, do one call first, then 
-            // the rest, then put the list back together
-            const firstArtistWithID = await addArtistID(artists[0]);
-            const restOfArtistsWithIDs = await Promise.all(
-                artists.slice(1).map(addArtistID)
-            ); // order doesn't really matter
-            restOfArtistsWithIDs.push(firstArtistWithID);
-            const artistsWithIDs = restOfArtistsWithIDs;
-
+            const artistsWithIDs = await Promise.all(
+                artists.map(async (artist) => {
+                    artist.spotifyID = await this.getArtistSpotifyID(artist);
+                    return artist;
+                })
+            ); 
             // return only the ones that have a spotifyID
             return artistsWithIDs.filter(artist => artist.spotifyID);
         } catch (err) {
@@ -271,6 +281,11 @@ class PlaylistCreator {
                 console.log("no events to create a playlist from");
                 return "no events";
             }
+
+            // ensure access token explicitly because the first thing we call is a function 
+            // that 1) doesn't always call on the spotify api and 2) is executed multiple 
+            // times in parallel, and we don't want to call ensure access token like that
+            await this.appSpotifyAPI.ensureAccessToken();
 
             // get a tracklist, those tracks' artists, and the events from which the tracklist was created
             const [trackList, artistList, eventList] = await this.collectTracks(events);

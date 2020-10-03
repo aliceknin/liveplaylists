@@ -1,7 +1,7 @@
 const wdk = require('wikidata-sdk');
 const axios = require('axios');
 
-async function getSpotifyIDFromMBID(mbid) {
+async function getSpotifyIDFromWikiData(mbid) {
     const sparql = `
         SELECT ?spotifyId WHERE {
             ?musician wdt:P434 "${mbid}";
@@ -14,10 +14,12 @@ async function getSpotifyIDFromMBID(mbid) {
         const idContainer = wdk.simplify.sparqlResults(
             wdkRes.data, { minimize: true });
         const spotifyID = idContainer[0] ? idContainer[0] : '';
+        if (spotifyID) 
+        console.log("got spotifyID from WikiData:", spotifyID);
         return spotifyID;
     } catch (err) {
         console.log("couldn't get spotify id from mbid", err);
     }
 }
 
-module.exports = { getSpotifyIDFromMBID };
+module.exports = { getSpotifyIDFromWikiData };

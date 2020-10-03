@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const UserSpotifyAPI = require('../config/spotify');
 const { getSpotifyIDFromMusicBrainzRelURL } = require('../services/musicbrainzService');
-const { getSpotifyIDFromMBID } = require('../services/wikidataService');
+const { getSpotifyIDFromWikiData } = require('../services/wikidataService');
 
 router.get('/user/profile', async (req, res) => {
     console.log('we made it to the server');
@@ -32,7 +32,7 @@ router.get('/user/profile', async (req, res) => {
     const mbid = "664c3e0e-42d8-48c1-b209-1efca19c0325";
 
     // const musicbrainzResults = await getSpotifyIDFromMusicBrainzRelURL(mbid);
-    const wikidataResults = await getSpotifyIDFromMBID(mbid);
+    const wikidataResults = await getSpotifyIDFromWikiData(mbid);
 
     res.send(wikidataResults);
 });

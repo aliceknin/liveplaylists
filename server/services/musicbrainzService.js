@@ -16,7 +16,9 @@ async function getSpotifyIDFromMusicBrainzRelURL(mbid) {
                 maybeSpotifyURL = relURL.url.resource;
                 spotifyBaseURL = "https://open.spotify.com/artist/"
                 if (maybeSpotifyURL.includes(spotifyBaseURL)) {
-                    return maybeSpotifyURL.slice(spotifyBaseURL.length);
+                    const spotifyID = maybeSpotifyURL.slice(spotifyBaseURL.length);
+                    console.log("got spotifyID from MusicBrainz:", spotifyID);
+                    return spotifyID;
                 }
             }
         }
