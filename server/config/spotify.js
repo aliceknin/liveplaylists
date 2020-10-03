@@ -43,7 +43,7 @@ class UserSpotifyAPI extends SpotifyWebAPI {
     // token fails. is this ideal? should we handle some of these?
     async ensureAccessToken(funcName, args) {
         try { // await converts synchronous calls to a resolved promise, so this will always return a promise
-            return await this[funcName](...args);
+            return await this.tryFunction(funcName, args);
         } catch(err) {
             if (err.statusCode === 401) {
                 console.log("couldn't authenticate when trying to", funcName);
@@ -66,7 +66,7 @@ class UserSpotifyAPI extends SpotifyWebAPI {
             this.setAccessToken(data.body['access_token']);
             console.log('set new access token');
             console.log('trying your function again');
-            return await this[funcName](...args);
+            return await this.tryFunction(funcName, args);
         } catch (err) {
             // since this is just a wrapper, we want to let the original
             // caller handle any errors
@@ -93,6 +93,17 @@ class UserSpotifyAPI extends SpotifyWebAPI {
     setRefreshTokenAndReturn(refreshToken) {
         this.setRefreshToken(refreshToken);
         return this;
+    }
+
+    async tryFunction(funcName, args) {
+        // if no function given, call a default function
+        // to check if the access token is valid
+        funcName = funcName || 'getMe';
+        if (typeof funcName === 'string') {
+            return args ? this[funcName](...args) : this[funcName]();
+        } else if (typeof funcName === 'function') {
+            return args ? funcName(...args) : funcName();
+        }
     }
 }
 
