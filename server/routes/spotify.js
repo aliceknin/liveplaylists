@@ -10,9 +10,9 @@ router.get('/user/profile', async (req, res) => {
     // console.log('req.user:', req.user.name);
     // const userSpotifyAPI = new UserSpotifyAPI(req.session.access, req.user);
 
-    const pc = new PlaylistCreator(req.user, req.session.access);
+    // const pc = new PlaylistCreator(req.user, req.session.access);
     // const info = await pc.saveCopyOfPlaylist("2TaAnxEKQ4Kx9F7gt80e5X", "suf the fourth");
-    const info = await pc.getPlaylistInfo("2TaAnxEKQ4Kx9F7gt80e5X");
+    const info = await PlaylistCreator.getPlaylistInfo("2TaAnxEKQ4Kx9F7gt80e5X");
     res.send(info);
 
     // userSpotifyAPI.getMe()

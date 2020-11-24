@@ -68,6 +68,22 @@ router.get('/save', async (req, res) => {
     }
 });
 
+router.get('/info', async (req, res) => {
+    try {
+        if (!req.query || !req.query.playlistID) {
+            console.log("need playlistID to get playlist info");
+            res.status(400).send("need playlistID get playlist info");
+        } else {
+            const info = await PlaylistCreator.getPlaylistInfo(
+                req.query.playlistID);
+            res.send(info);
+            console.log("got playlist info");
+        }
+    } catch (err) {
+        console.log("couldn't get playlist info", err);
+    }
+});
+
 router.post('/auto-creation-params', (req, res) => {
     // set logged in user's automatic playlist creation params
 });
