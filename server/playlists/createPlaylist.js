@@ -1,3 +1,4 @@
+const axios = require('axios');
 const UserSpotifyAPI = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
@@ -315,31 +316,77 @@ class PlaylistCreator {
         }
     }
 
+    async getAllItemsFromPagingObject(items, next, itemfields) {
+        try {
+            await this.appSpotifyAPI.ensureAccessToken();
+            while (next) {
+                const nextData = await axios.get(next + 
+                    "&fields=next,items" + itemfields, {
+                    headers: {
+                        'Authorization': `Bearer ${this.appSpotifyAPI.getAccessToken()}`
+                    }
+                });
+    
+                items = items.concat(nextData.data.items);
+                next = nextData.data.next;
+            }
+        } catch (err) {
+            console.log("something went wrong getting more items from paging obj", err);
+        } finally {
+            return items;
+        }
+    }
+
     // save a copy of the playlist to the user's account
     async saveCopyOfPlaylist(playlistID, name, description, type) {
         let userSpotifyID = this.user.spotifyID;
         try {
+            const itemFields = "(track(uri))";
             const oldPlaylistData = await this.userSpotifyAPI.ensureAccessToken(
                 'getPlaylist', [playlistID, 
-                { fields: "name,description,tracks.items(track(uri))" }]);
+                { fields: "name,description,tracks(items" + itemFields + ',next)' }]);
 
             name = name || oldPlaylistData.body.name;
             description = description || oldPlaylistData.body.description;
             type = this.getPlaylistType(type);
-            const tracks = oldPlaylistData.body.tracks.items
-                .map(trackItem => trackItem.track.uri);
+            const allTracks = await this.getAllItemsFromPagingObject(
+                oldPlaylistData.body.tracks.items,
+                oldPlaylistData.body.tracks.next,
+                itemFields
+            );
+            const trackURIs = allTracks.map(trackItem => trackItem.track.uri);
 
             const newPlaylistData = await this.userSpotifyAPI.createPlaylist(
                 userSpotifyID, name, { description, ...type });
             const newPlaylistID = newPlaylistData.body.id;
             console.log("new playlist:", newPlaylistID);
             
-            await this.updatePlaylistTracks(newPlaylistID, tracks, this.userSpotifyAPI);
+            await this.updatePlaylistTracks(newPlaylistID, trackURIs, this.userSpotifyAPI);
             console.log("we saved a copy of this playlist to your account!");
             return newPlaylistID;
         } catch (err) {
             console.log("something went wrong when trying to save a copy of this playlist", err);
         }
+    }
+
+    async getPlaylistInfo(playlistID) {
+        const itemFields = "(track(name,uri,duration_ms,artists(name)))";
+        const playlistData = await this.appSpotifyAPI.ensureAccessToken(
+            'getPlaylist', [playlistID,
+            { fields: "name,description,href,images," +
+            "tracks(items" + itemFields + ",next)" }]
+        );
+        const tracks = playlistData.body.tracks;
+        const items = await this.getAllItemsFromPagingObject(
+            tracks.items, tracks.next, itemFields)
+        const playlist = {
+            ...playlistData.body,
+            tracks: {
+                items: items
+            }
+        }
+
+        return playlist;
     }
 
 }
