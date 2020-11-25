@@ -4,6 +4,15 @@
     margin: 1em auto;
     border-radius: .5em;
     overflow: hidden;
+
+    h3, h4, h5, h6 {
+        font-size: 1em;
+        margin: 0;
+        font-weight: normal;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .player {
@@ -12,19 +21,14 @@
     background-color: hsl(0,0,15%);
     color: #fff;
 
-    h3, h4 {
-        margin: 0;
-        font-size: 1em;
-    }
-
-    h4 {
-        font-weight: normal;
+    h3 {
+        font-weight: bold;
     }
 }
 
 .play-pause {
     position: relative;
-    height: 100%;
+    height: 5.75em;
 }
 
 .play-btn {
@@ -49,13 +53,14 @@
 }
 
 img.album-art {
-    height: 5.5em;
-    width: 5.5em;
+    height: 5.75em;
+    width: 5.75em;
 }
 
 .player-info {
     flex-grow: 2;
     margin: .75em;
+    min-width: 0;
 }
 
 .skip-seek {
@@ -104,12 +109,6 @@ li.track {
     flex-wrap: no-wrap;
     transition: all .2s ease;
 
-    h5, h6 {
-        font-size: 1em;
-        margin: 0;
-        font-weight: normal;
-    }
-
     &:hover {
         background-color: hsl(0,0,25%);
     }
@@ -121,6 +120,7 @@ li.track {
 
 .track-info {
     flex-grow: 2;
+    min-width: 0;
 }
 
 .track-name {
