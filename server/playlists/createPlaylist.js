@@ -373,8 +373,8 @@ class PlaylistCreator {
         const itemFields = "(track(name,uri,duration_ms,artists(name)))";
         const playlistData = await this.appSpotifyAPI.ensureAccessToken(
             'getPlaylist', [playlistID,
-            { fields: "name,description,owner,href,images," +
-            "tracks(items" + itemFields + ",next)" }]
+            { fields: "name,description,owner.display_name,external_urls.spotify," +
+                      "images,tracks(items" + itemFields + ",next)" }]
         );
         const tracks = playlistData.body.tracks;
         const items = await this.getAllItemsFromPagingObject(
