@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import isEmpty from 'lodash.isempty';
 import UserContext from '../contexts/UserContext';
 import SpotifyEmbed from '../components/SpotifyEmbed';
+import Playlist from '../components/Playlist';
 
 const UserSettings = () => {
     const { user } = useContext(UserContext);
@@ -28,8 +29,10 @@ const UserSettings = () => {
                         <li>Spotify ID: {user.spotifyID}</li>
                     </ul>
                     {user.playlistID &&
+                    <Playlist playlistID={user.playlistID}/>}
+                    {user.playlistID &&
                     <SpotifyEmbed playlistID={user.playlistID}/>}
-                    <button onClick={user.logout}>
+                    <button onClick={logout}>
                         Log Out
                     </button>
                 </div>

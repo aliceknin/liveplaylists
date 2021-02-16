@@ -1,3 +1,4 @@
+const axios = require('axios');
 const UserSpotifyAPI = require('../config/spotify');
 const SpotifyUser = require('../models/spotifyUser');
 const { getUpcomingEvents } = require('../services/songkickService');
@@ -9,7 +10,7 @@ const { getSpotifyIDFromMusicBrainzRelURL } = require('../services/musicbrainzSe
 class PlaylistCreator {
 
     // Spotify API wrapper instance with the app Spotify account's credentials
-    appSpotifyAPI = new UserSpotifyAPI()
+    static appSpotifyAPI = new UserSpotifyAPI()
                     .setRefreshTokenAndReturn(process.env.APP_REFRESH_TOKEN);
 
     constructor(user, access) {
@@ -67,7 +68,7 @@ class PlaylistCreator {
     // search spotify for each artist to find their spotify id
     async searchForArtistSpotifyID(artistDisplayName) {
         try {
-            const data = await this.appSpotifyAPI.searchArtists(artistDisplayName);
+            const data = await PlaylistCreator.appSpotifyAPI.searchArtists(artistDisplayName);
             if (!data.body.artists.items[0]) {
                 console.log("no results for", artistDisplayName);
                 return "";
@@ -102,7 +103,7 @@ class PlaylistCreator {
             return [];
         }
         try {
-            const data = await this.appSpotifyAPI.getArtistTopTracks(
+            const data = await PlaylistCreator.appSpotifyAPI.getArtistTopTracks(
                 artistID, 'from_token');
             return data.body.tracks.map(track => track.uri);
         } catch (err) {
@@ -163,7 +164,7 @@ class PlaylistCreator {
 
     async updatePlaylistDescription(playlistID, description) {
         try {
-            return await this.appSpotifyAPI.ensureAccessToken(
+            return await PlaylistCreator.appSpotifyAPI.ensureAccessToken(
                 'changePlaylistDetails', 
                 [ playlistID, { description } ]);
         } catch (err) {
@@ -177,7 +178,7 @@ class PlaylistCreator {
         description = description || '';
         try {
             // we want to allow the user to modify this themselves
-            const data = await this.appSpotifyAPI.ensureAccessToken(
+            const data = await PlaylistCreator.appSpotifyAPI.ensureAccessToken(
                 'createPlaylist', [
                     Constants.APP_SPOTIFY_ID, 
                     Constants.PLAYLIST_TITLE,
@@ -285,7 +286,7 @@ class PlaylistCreator {
             // ensure access token explicitly because the first thing we call is a function 
             // that 1) doesn't always call on the spotify api and 2) is executed multiple 
             // times in parallel, and we don't want to call ensure access token like that
-            await this.appSpotifyAPI.ensureAccessToken();
+            await PlaylistCreator.appSpotifyAPI.ensureAccessToken();
 
             // get a tracklist, those tracks' artists, and the events from which the tracklist was created
             const [trackList, artistList, eventList] = await this.collectTracks(events);
@@ -295,7 +296,7 @@ class PlaylistCreator {
 
             // create the final playlist
             const playlistID = await this.findOrCreateUserAppPlaylist(playlistDescription);
-            await this.updatePlaylistTracks(playlistID, trackList, this.appSpotifyAPI);
+            await this.updatePlaylistTracks(playlistID, trackList, PlaylistCreator.appSpotifyAPI);
 
             return playlistID;
         } catch (err) {
@@ -315,31 +316,75 @@ class PlaylistCreator {
         }
     }
 
+    static async getAllItemsFromPagingObject(items, next, itemfields) {
+        try {
+            await this.appSpotifyAPI.ensureAccessToken();
+            while (next) {
+                const nextData = await axios.get(next + 
+                    "&fields=next,items" + itemfields, {
+                    headers: {
+                        'Authorization': `Bearer ${this.appSpotifyAPI.getAccessToken()}`
+                    }
+                });
+    
+                items = items.concat(nextData.data.items);
+                next = nextData.data.next;
+            }
+        } catch (err) {
+            console.log("something went wrong getting more items from paging obj", err);
+        } finally {
+            return items;
+        }
+    }
+
     // save a copy of the playlist to the user's account
     async saveCopyOfPlaylist(playlistID, name, description, type) {
         let userSpotifyID = this.user.spotifyID;
         try {
+            const itemFields = "(track(uri))";
             const oldPlaylistData = await this.userSpotifyAPI.ensureAccessToken(
                 'getPlaylist', [playlistID, 
-                { fields: "name,description,tracks.items(track(uri))" }]);
+                { fields: "name,description,tracks(items" + itemFields + ',next)' }]);
 
             name = name || oldPlaylistData.body.name;
             description = description || oldPlaylistData.body.description;
             type = this.getPlaylistType(type);
-            const tracks = oldPlaylistData.body.tracks.items
-                .map(trackItem => trackItem.track.uri);
+            const allTracks = await PlaylistCreator.getAllItemsFromPagingObject(
+                oldPlaylistData.body.tracks.items,
+                oldPlaylistData.body.tracks.next,
+                itemFields
+            );
+            const trackURIs = allTracks.map(trackItem => trackItem.track.uri);
 
             const newPlaylistData = await this.userSpotifyAPI.createPlaylist(
                 userSpotifyID, name, { description, ...type });
             const newPlaylistID = newPlaylistData.body.id;
             console.log("new playlist:", newPlaylistID);
             
-            await this.updatePlaylistTracks(newPlaylistID, tracks, this.userSpotifyAPI);
+            await this.updatePlaylistTracks(newPlaylistID, trackURIs, this.userSpotifyAPI);
             console.log("we saved a copy of this playlist to your account!");
             return newPlaylistID;
         } catch (err) {
             console.log("something went wrong when trying to save a copy of this playlist", err);
         }
+    }
+
+    static async getPlaylistInfo(playlistID) {
+        const itemFields = "(track(name,uri,duration_ms,artists(name)))";
+        const playlistData = await this.appSpotifyAPI.ensureAccessToken(
+            'getPlaylist', [playlistID,
+            { fields: "name,description,owner.display_name,external_urls.spotify," +
+                      "images,tracks(items" + itemFields + ",next)" }]
+        );
+        const tracks = playlistData.body.tracks;
+        const items = await this.getAllItemsFromPagingObject(
+            tracks.items, tracks.next, itemFields)
+        const playlist = {
+            ...playlistData.body,
+            tracks: items.map(item => item.track)
+        }
+
+        return playlist;
     }
 
 }
