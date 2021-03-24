@@ -16,6 +16,12 @@
     .buttons-container {
         max-width: 600px;
         margin: 0 auto;
+
+        .info-popup-group:first-child {
+            .info-popup {
+                left: 0;
+            }
+        }
     }
 }
 

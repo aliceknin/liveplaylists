@@ -13,12 +13,24 @@ const PlaylistContainer = () => {
             <>
             <SpotifyEmbed playlistID={playlistID}/>
             <div className="buttons-container">
-                <button onClick={()=> setPlaylistID("")}>
-                    Create New Playlist
-                </button>
-                <button onClick={() => setSaveModalOpen(true)}>
-                    Save Playlist
-                </button>
+                <div className="info-popup-group">
+                    <button onClick={()=> setPlaylistID("")}>
+                        Create New Playlist
+                    </button>
+                    <aside className="info-popup">
+                        <p>Override this playlist with a new one.</p> 
+                        <p>If you want to keep this playlist, save a copy of this playlist first, then create a new one.</p>
+                    </aside>
+                </div>
+                <div className="info-popup-group">
+                    <button onClick={() => setSaveModalOpen(true)}>
+                        Save Playlist
+                    </button>
+                    <aside className="info-popup">
+                        <p>Save a copy of this playlist to your Spotify account.</p>
+                        <p>This playlist is currently shared with your Spotify account, but will be overwritten any time you create a new playlist.</p>
+                    </aside>
+                </div>
             </div>
             <SavePlaylistModal playlistID={playlistID}
                 isOpen={saveModalOpen}

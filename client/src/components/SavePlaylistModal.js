@@ -102,7 +102,13 @@ const SavePlaylistModal = (props) => {
                     checkedValue={type}
                     onChange={handleTypeChange}
                     onEnter={handleEnter}/>
-                <i className="fas fa-info-circle"></i>
+                <div className="info-popup-group">
+                    <i className="fas fa-info-circle"></i>
+                    <aside className="info-popup">
+                        <p><strong>Public</strong> playlists show up in public searches and on your public profile, unlike <strong>private</strong> playlists.</p>
+                        <p><strong>Collaborative</strong> are private, and can be edited by those you share them with.</p>
+                    </aside>
+                </div>
                 <div className="buttons-container">
                     <button type="button"
                             className="button-light" 
