@@ -10,7 +10,7 @@
         border-radius: 7px;
         display: flex;
         justify-content: center;
-        background: linear-gradient(hsl(0,0,95%) 25%, hsl(0,0,97%) 31.25%, hsl(0, 0, 95%) 37.5%);
+        background: linear-gradient(hsl(0,0%,95%) 25%, hsl(0,0%,97%) 31.25%, hsl(0, 0%, 95%) 37.5%);
         background-size: 100% 400%;
         animation: 5s ease-in infinite backwards shine;
 
@@ -18,7 +18,7 @@
             margin: auto;
             height: 50%;
             font-size: 1.5em;
-            color: hsl(0,0,50%);
+            color: hsl(0,0%,50%);
         }
     }
 
@@ -27,7 +27,7 @@
         bottom: 0;
         right: 0;
         padding: 1em;
-        box-shadow: 0 3px 7px hsla(0,0,100%,.7);
+        box-shadow: 0 3px 7px hsla(0,0%,100%,70%);
     }
 }
 
@@ -37,8 +37,8 @@
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     border-radius: .5em;
-    // box-shadow: 0 7px 25px 10px hsla(0, 0, 0, .2),
-    //             0 2px 5px 1px hsla(0,0,0,.5);
+    // box-shadow: 0 7px 25px 10px hsla(0, 0%, 0%, 20%),
+    //             0 2px 5px 1px hsla(0,0%,0%,50%);
 
     &.loaded {
         opacity: 1;

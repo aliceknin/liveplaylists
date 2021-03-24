@@ -1,4 +1,4 @@
-@import './styles/variables.scss';
+@use 'styles/variables' as *;
 
 .inner {
   margin: 0 auto;
@@ -9,17 +9,17 @@
 input:not([type=radio]), textarea {
   padding: .75em;
   border-radius: 5px;
-  // border: solid 1px hsl(0, 0, 72%);
+  // border: solid 1px hsl(0, 0%, 72%);
   border: none;
   font-family: inherit;
   transition: all .2s ease;
-  // box-shadow: inset 0 2px 5px hsla(0, 0, 40%, 0.20);
-  background-color: hsl(0, 0, 95%);
+  // box-shadow: inset 0 2px 5px hsla(0, 0%, 40%, 20%);
+  background-color: hsl(0, 0%, 95%);
   box-sizing: border-box;
 
   &:hover {
-    box-shadow: inset 0 2px 5px hsla(0, 0, 0%, 0.15);
-    border-color : hsl(0, 0, 40%);
+    box-shadow: inset 0 2px 5px hsla(0, 0%, 0%, 15%);
+    border-color : hsl(0, 0%, 40%);
   }
 
 }
@@ -43,11 +43,11 @@ button {
 
   &:hover {
       background: darken($button-color, 7%);
-      // box-shadow: inset 0 2px 2px hsla(0, 0, 0, .075),
-      //             inset 0 -2px 2px hsla(0, 0, 100%, .3);
+      // box-shadow: inset 0 2px 2px hsla(0, 0%, 0%, 7.5%),
+      //             inset 0 -2px 2px hsla(0, 0%, 100%, 30%);
 
       &.button-callout {
-        box-shadow: 0 5px 20px -5px hsl(0%, 0%, 20%);
+        box-shadow: 0 5px 20px -5px hsl(0, 0%, 20%);
       }
   }
 }

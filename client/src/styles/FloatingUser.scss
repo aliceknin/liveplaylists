@@ -47,10 +47,10 @@
     .results-list {
         display: none;
         top: 2.5em;
-        background-color: hsl(0,0,40%);
+        background-color: hsl(0,0%,40%);
 
         a, li {
-            color:hsl(0,0,80%);
+            color:hsl(0,0%,80%);
         }
 
         li:first-child {
@@ -66,8 +66,8 @@
 
         li.not-you {
             padding: 0;
-            border-top: solid 1px hsl(0,0,45%);
-            background-color: hsl(0,0,35%);
+            border-top: solid 1px hsl(0,0%,45%);
+            background-color: hsl(0,0%,35%);
             font-size: .7em;
 
             a {
@@ -79,7 +79,7 @@
         }
 
         li:hover {
-            background-color: hsl(0,0,30%);
+            background-color: hsl(0,0%,30%);
             color: #fff;
 
             a {
