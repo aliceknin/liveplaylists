@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 .playlist-parameters {
 
     .container {
@@ -41,7 +43,7 @@
     font-size: .75em;
     padding: .5em;
 
-    span:hover {
+    @include hover("span") {
         text-decoration: underline;
         cursor: pointer;
     }
@@ -87,7 +89,7 @@
         // border-bottom: solid 1px #b7b7b7;
         transition: all .2s ease;
 
-        &:hover {
+        @include hover("&") {
             background-color: #e8e8e8;
             box-shadow: inset 0 2px 2px hsla(0, 0%, 0%, 10%);
         }
@@ -109,7 +111,7 @@
         text-align: center;
         line-height: 1em;
         
-        &:hover {
+        @include hover("&") {
             background-color: #fff;
             box-shadow: none;
             text-decoration: underline;

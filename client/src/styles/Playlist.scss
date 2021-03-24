@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .playlist-container {
     position: relative;
     max-width: 600px;
@@ -46,7 +48,7 @@
     width: 2.5em;
     padding-left: 10px;
 
-    &:hover {
+    @include hover("&") {
         transform: scale(1.1);
         background-color: hsla(0,0%,0%,50%);
     }
@@ -76,7 +78,7 @@ img.album-art {
     color: #fff;
     background-color: transparent;
 
-    &:hover {
+    @include hover("&") {
         background-color: transparent;
     }
 }
@@ -109,7 +111,7 @@ li.track {
     flex-wrap: no-wrap;
     transition: all .2s ease;
 
-    &:hover {
+    @include hover("&") {
         background-color: hsl(0,0%,25%);
     }
 }

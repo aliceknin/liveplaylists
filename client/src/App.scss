@@ -1,4 +1,5 @@
 @use 'styles/variables' as *;
+@use 'styles/mixins' as *;
 
 .inner {
   margin: 0 auto;
@@ -17,7 +18,7 @@ input:not([type=radio]), textarea {
   background-color: hsl(0, 0%, 95%);
   box-sizing: border-box;
 
-  &:hover {
+  @include hover("&") {
     box-shadow: inset 0 2px 5px hsla(0, 0%, 0%, 15%);
     border-color : hsl(0, 0%, 40%);
   }
@@ -41,7 +42,7 @@ button {
     background-color: #fff;
   }
 
-  &:hover {
+  @include hover("&") {
       background: darken($button-color, 7%);
       // box-shadow: inset 0 2px 2px hsla(0, 0%, 0%, 7.5%),
       //             inset 0 -2px 2px hsla(0, 0%, 100%, 30%);

@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .user-container {
     position: relative;
     height: 2em;
@@ -35,7 +37,7 @@
         white-space: nowrap;
     }
 
-    &:hover {
+    @include hover("&") {
         text-decoration: underline;
         cursor: pointer;
 
@@ -78,7 +80,7 @@
             }
         }
 
-        li:hover {
+        @include hover("li") {
             background-color: hsl(0,0%,30%);
             color: #fff;
 
