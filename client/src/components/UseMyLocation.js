@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Axios from 'axios';
 import { trimLocation } from '../utils/LocationUtils';
+import BannerAlert from './BannerAlert';
+
+const defaultErrorMessage = "Something went wrong getting your location.";
 
 const UseMyLocation = (props) => {
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(defaultErrorMessage);
+    const [locationBlocked, setLocationBlocked] = useState(false);
 
     async function handleClick() {
         try {
@@ -12,6 +18,8 @@ const UseMyLocation = (props) => {
                 props.recieveLocation(location)
             }
         } catch (err) {
+            setShowError(true);
+            setErrorMessage(defaultErrorMessage);
             console.log("something went wrong getting the user's location", err);
         }
     }
@@ -27,7 +35,15 @@ const UseMyLocation = (props) => {
             }
             return latLong;
         } catch (err) {
+            setShowError(true);
             console.log("couldn't get coords", err);
+
+            if (err.code === err.PERMISSION_DENIED) {
+                setLocationBlocked(true);
+                setErrorMessage("You've blocked this site from getting your location.");
+            } else { 
+                setErrorMessage(defaultErrorMessage);
+            }
         }
 
     }
@@ -41,15 +57,26 @@ const UseMyLocation = (props) => {
             });
             return trimLocation(res.data.resultsPage.results.location[0]);
         } catch(err) {
+            setShowError(true);
+            setErrorMessage(defaultErrorMessage);
             console.log("geolocation search failed", err);
         }
     }
 
     return (
-        <div className="use-location"
+        <>
+        <div className={`use-location ${locationBlocked ? "location-blocked" : ""}`}
             onClick={handleClick}>
             <span>Use my location <i className="fa fa-map-marker"></i></span>
         </div>
+        {showError &&
+            <BannerAlert 
+                onClose={() => setShowError(false)} 
+                className="error"
+                duration="25000000">
+                {errorMessage}
+            </BannerAlert>}
+        </>
     )
 }
 
