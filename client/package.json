@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "axios": "^0.21.1",
+    "focus-visible": "^5.2.0",
     "http-proxy-middleware": "^0.20.0",
     "lodash.isempty": "^4.4.0",
     "react": "^16.14.0",

@@ -14,7 +14,7 @@ const PlaylistContainer = () => {
             <SpotifyEmbed playlistID={playlistID}/>
             <div className="buttons-container">
                 <div className="info-popup-group">
-                    <button onClick={()=> setPlaylistID("")}>
+                    <button onClick={()=> setPlaylistID("")} className="info-popup-cue">
                         Create New Playlist
                     </button>
                     <aside className="info-popup">
@@ -23,7 +23,7 @@ const PlaylistContainer = () => {
                     </aside>
                 </div>
                 <div className="info-popup-group">
-                    <button onClick={() => setSaveModalOpen(true)}>
+                    <button onClick={() => setSaveModalOpen(true)} className="info-popup-cue">
                         Save Playlist
                     </button>
                     <aside className="info-popup">

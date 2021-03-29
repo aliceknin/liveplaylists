@@ -1,6 +1,13 @@
 @use "mixins" as *;
 
 .user-container {
+    background-color: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    text-transform: none;
+    border: none;
+    box-shadow: none;
     position: relative;
     height: 2em;
     float: right;
@@ -9,7 +16,8 @@
     display: flex;
     flex-wrap: nowrap;
     line-height: 1em;
-    padding-bottom: .5em;
+    padding: 0 0 .5em 0;
+    box-sizing: content-box;
     
     a {
         color: #000;
@@ -37,10 +45,13 @@
         white-space: nowrap;
     }
 
-    @include hover("&") {
+    @include hover($focusTap: true) {
         text-decoration: underline;
         cursor: pointer;
+        background-color: transparent;
+    }
 
+    @include hover($focus: false) {
         .results-list {
             display: block;
         }

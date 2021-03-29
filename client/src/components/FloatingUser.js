@@ -12,7 +12,7 @@ function FloatingUser(props) {
 
     return (
         (!isEmpty(user)) ?
-        <div className="user-container"
+        <button className="user-container"
              onClick={() => setShowMenu(s => !s)}>
             <img className="icon"
                 src={user.thumbURL ? user.thumbURL : userImage} 
@@ -22,7 +22,7 @@ function FloatingUser(props) {
                 <i className="fa fa-chevron-down"></i>
             </span>
             <UserMenuOptions show={showMenu} logout={user.logout}/>
-        </div>
+        </button>
         :
         <div className="user-container">
             <a className="icon" href="/auth/spotify">

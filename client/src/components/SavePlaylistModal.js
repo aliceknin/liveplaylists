@@ -108,7 +108,7 @@ const SavePlaylistModal = (props) => {
                     checkedValue={type}
                     onChange={handleTypeChange}
                     onEnter={handleEnter}/>
-                <div className="info-popup-group">
+                <div className="info-popup-group info-popup-cue" tabIndex="0">
                     <i className="fas fa-info-circle"></i>
                     <aside className="info-popup">
                         <p><strong>Public</strong> playlists show up in public searches and on your public profile, unlike <strong>private</strong> playlists.</p>

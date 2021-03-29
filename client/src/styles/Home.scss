@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 .home {
     .hero {
         text-align: center;
@@ -22,6 +24,14 @@
                 left: 0;
             }
         }
+
+        @media (max-width: $button-breakpoint) {
+            .info-popup-group {
+                .info-popup:last-child {
+                    left: 0;
+                }
+            }
+        }
     }
 }
 
@@ -36,7 +46,7 @@
         text-decoration: none;
     }
 
-    @media (min-width: 435px) {
+    @media (min-width: $button-breakpoint) {
         display: flex;
         justify-content: flex-end;
         width: 100%;

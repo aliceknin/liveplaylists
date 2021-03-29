@@ -5,6 +5,9 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+// eslint-disable-next-line
+import focusVisible from "focus-visible";
+
 ReactModal.setAppElement('#root');
 ReactDOM.render(<App />, document.getElementById('root'));
 
