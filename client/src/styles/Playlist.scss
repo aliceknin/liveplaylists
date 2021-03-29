@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .playlist-container {
     position: relative;
     max-width: 600px;
@@ -18,7 +20,7 @@
 .player {
     display: flex;
     flex-wrap: nowrap;
-    background-color: hsl(0,0,15%);
+    background-color: hsl(0,0%,15%);
     color: #fff;
 
     h3 {
@@ -32,11 +34,11 @@
 }
 
 .play-btn {
-    background-color: hsla(0,0,0,.5);
+    background-color: hsla(0,0%,0%,50%);
     color: #fff;
     border: 1px solid #fff;
     padding: .5em;
-    box-shadow: 0 0 5px 7px hsla(0,0,0,.2);
+    box-shadow: 0 0 5px 7px hsla(0,0%,0%,20%);
     transition-duration: .13s;
     position: absolute;
     top: 0;
@@ -46,9 +48,9 @@
     width: 2.5em;
     padding-left: 10px;
 
-    &:hover {
+    @include hover("&") {
         transform: scale(1.1);
-        background-color: hsla(0,0,0,.5);
+        background-color: hsla(0,0%,0%,50%);
     }
 }
 
@@ -76,14 +78,14 @@ img.album-art {
     color: #fff;
     background-color: transparent;
 
-    &:hover {
+    @include hover("&") {
         background-color: transparent;
     }
 }
 
 .seek {
     flex-grow: 2;
-    background-color: hsl(0,0,35%);
+    background-color: hsl(0,0%,35%);
     height: .3em;
     margin: .25em .75em;
 }
@@ -96,8 +98,8 @@ img.album-art {
 ul.track-list {
     padding: 0;
     margin: 0;
-    color: hsl(0,0,50%);
-    background-color: hsl(0,0,5%);
+    color: hsl(0,0%,50%);
+    background-color: hsl(0,0%,5%);
     height: 380px;
     overflow: auto;
 }
@@ -109,8 +111,8 @@ li.track {
     flex-wrap: no-wrap;
     transition: all .2s ease;
 
-    &:hover {
-        background-color: hsl(0,0,25%);
+    @include hover("&") {
+        background-color: hsl(0,0%,25%);
     }
 }
 

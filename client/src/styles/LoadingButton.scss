@@ -1,10 +1,11 @@
-@import './variables.scss';
+@use 'variables' as *;
+@use 'mixins' as *;
 
 .btn-loading {
-    color: hsl(0,0,60%);
+    color: hsl(0,0%,60%);
     position: relative;
 
-    &:hover {
+    @include hover("&") {
         cursor: default;
         background-color: $button-color;
     }

@@ -7,7 +7,7 @@ const HeroContent = () => {
     return (
         <>
         <h1>Live Playlists</h1>
-        <h2>some kind of description that has some chance of getting a user to want to check this thing out</h2>
+        <h2>Create Spotify playlists featuring artists with upcoming events in your&nbsp;city!</h2>
         {(isEmpty(user)) &&
         <a href='/auth/spotify'><button className="button-callout">Login with Spotify</button></a>}
         </>

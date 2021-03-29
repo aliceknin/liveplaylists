@@ -1,4 +1,5 @@
-@import './styles/variables.scss';
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
 
 .inner {
   margin: 0 auto;
@@ -6,20 +7,24 @@
   padding: 2.5em 0;
 }
 
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
 input:not([type=radio]), textarea {
   padding: .75em;
   border-radius: 5px;
-  // border: solid 1px hsl(0, 0, 72%);
+  // border: solid 1px hsl(0, 0%, 72%);
   border: none;
   font-family: inherit;
   transition: all .2s ease;
-  // box-shadow: inset 0 2px 5px hsla(0, 0, 40%, 0.20);
-  background-color: hsl(0, 0, 95%);
+  // box-shadow: inset 0 2px 5px hsla(0, 0%, 40%, 20%);
+  background-color: hsl(0, 0%, 95%);
   box-sizing: border-box;
 
-  &:hover {
-    box-shadow: inset 0 2px 5px hsla(0, 0, 0%, 0.15);
-    border-color : hsl(0, 0, 40%);
+  @include hover("&") {
+    box-shadow: inset 0 2px 5px hsla(0, 0%, 0%, 15%);
+    border-color : hsl(0, 0%, 40%);
   }
 
 }
@@ -41,13 +46,13 @@ button {
     background-color: #fff;
   }
 
-  &:hover {
+  @include hover {
       background: darken($button-color, 7%);
-      // box-shadow: inset 0 2px 2px hsla(0, 0, 0, .075),
-      //             inset 0 -2px 2px hsla(0, 0, 100%, .3);
+      // box-shadow: inset 0 2px 2px hsla(0, 0%, 0%, 7.5%),
+      //             inset 0 -2px 2px hsla(0, 0%, 100%, 30%);
 
       &.button-callout {
-        box-shadow: 0 5px 20px -5px hsl(0%, 0%, 20%);
+        box-shadow: 0 5px 20px -5px hsl(0, 0%, 20%);
       }
   }
 }
@@ -78,5 +83,49 @@ button {
   100% {
       
       transform: translateY(-.15em);
+  }
+}
+
+.info-popup-group {
+  display: inline-block;
+  position: relative;
+  width: fit-content;
+  .info-popup {
+    display: none;
+    margin: 0;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    min-width: 250px;
+    max-width: 300px;
+    padding: 1em;
+    background-color: hsl(0, 0%, 95%);
+    border-radius: 10px;
+    box-shadow: 0px 1px 7px 2px hsla(0, 0%, 0%, 15%);
+
+    @supports (backdrop-filter: blur(3px)) {
+      background-color: hsla(0, 0%, 87%, 85%);
+      backdrop-filter: blur(3px);
+    }
+
+    *:first-child {
+      margin-top: 0;
+    }
+
+    *:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@include hover(".info-popup-cue", $focusTap: true) {
+  .info-popup, & + .info-popup {
+    display: block;
+  }
+}
+
+@include hover(".info-popup-cue", $focus: false) {
+  .info-popup, & + .info-popup {
+    @include appear($delay: 0.5s);
   }
 }

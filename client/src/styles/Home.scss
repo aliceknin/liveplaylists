@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 .home {
     .hero {
         text-align: center;
@@ -10,12 +12,28 @@
         }
         h2 {
             font-weight: 500;
+            max-width: 550px;
+            margin: 0 auto;
         }
     }
 
     .buttons-container {
         max-width: 600px;
         margin: 0 auto;
+
+        .info-popup-group:first-child {
+            .info-popup {
+                left: 0;
+            }
+        }
+
+        @media (max-width: $button-breakpoint) {
+            .info-popup-group {
+                .info-popup:last-child {
+                    left: 0;
+                }
+            }
+        }
     }
 }
 
@@ -30,7 +48,7 @@
         text-decoration: none;
     }
 
-    @media (min-width: 435px) {
+    @media (min-width: $button-breakpoint) {
         display: flex;
         justify-content: flex-end;
         width: 100%;

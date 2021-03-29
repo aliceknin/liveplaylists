@@ -1,1 +1,6 @@
-$button-color: hsl(0, 0, 87%);
+$button-color: hsl(0, 0%, 87%);
+
+/* This is the point at which buttons in the buttons
+containers, as well as the radio buttons, go from
+inline to block. */
+$button-breakpoint: 435px;

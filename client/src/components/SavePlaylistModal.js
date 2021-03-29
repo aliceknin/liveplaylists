@@ -5,12 +5,15 @@ import '../styles/SavePlaylistModal.scss';
 import RadioButtons from './RadioButtons';
 import LoadingButton from './LoadingButton';
 import axios from 'axios';
+import BannerAlert from './BannerAlert';
 
 const SavePlaylistModal = (props) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [type, setType] = useState("public");
     const [loading, setLoading] = useState(false);
+    const [failed, setFailed] = useState(false);
+    const [succeeded, setSucceeded] = useState(false);
 
     const descriptionInput = useRef(null);
 
@@ -65,8 +68,10 @@ const SavePlaylistModal = (props) => {
             })
             let playlistCopyID = res.data;
             console.log("saved copy of playlist!", playlistCopyID)
+            setSucceeded(true);
             return playlistCopyID;
         } catch (err) {
+            setFailed(true);
             console.log("couldn't save copy of playlist", err);
         } finally {
             setLoading(false);
@@ -81,6 +86,7 @@ const SavePlaylistModal = (props) => {
     ]
 
     return (
+        <>
         <ReactModal isOpen={props.isOpen}
                     contentLabel="Save Playlist Modal"
                     onRequestClose={props.onHide}
@@ -102,7 +108,13 @@ const SavePlaylistModal = (props) => {
                     checkedValue={type}
                     onChange={handleTypeChange}
                     onEnter={handleEnter}/>
-                <i className="fas fa-info-circle"></i>
+                <div className="info-popup-group info-popup-cue" tabIndex="0">
+                    <i className="fas fa-info-circle"></i>
+                    <aside className="info-popup">
+                        <p><strong>Public</strong> playlists show up in public searches and on your public profile, unlike <strong>private</strong> playlists.</p>
+                        <p><strong>Collaborative</strong> are private, and can be edited by those you share them with.</p>
+                    </aside>
+                </div>
                 <div className="buttons-container">
                     <button type="button"
                             className="button-light" 
@@ -112,6 +124,17 @@ const SavePlaylistModal = (props) => {
                 </div>
             </form>
         </ReactModal>
+        {succeeded && 
+            <BannerAlert onClose={()=>setSucceeded(false)} className="success">
+                Playlist saved!
+            </BannerAlert>
+        }
+        {failed && 
+            <BannerAlert onClose={()=>setFailed(false)} duration="5000" className="error">
+                Something went wrong saving your playlist.
+            </BannerAlert>
+        }
+        </>
     );
 }
 
